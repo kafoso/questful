@@ -329,7 +329,7 @@ Syntaxes are (as you may have noticed) similar - but not always identical - to t
 - `/i`<br>
 Makes searching for string values (exclusively) case insensitive.
 
-Modifiers are appended **after** the last square bracket, e.g. `["foo", "BAR"]/i`, and makes applies to all elements in the array. E.g. all strings becoming case insensitive.
+Modifiers are appended **after** the last square bracket, e.g. `["foo", "BAR"]/i`, and applies to all elements in the array. E.g. all strings becoming case insensitive.
 
 ##### Samples
 
