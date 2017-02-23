@@ -320,7 +320,7 @@ May contain an optional minus symbol at the beginning, and must then consist of 
 - **Integer**<br>
 May contain an optional minus symbol at the beginning, and must then consist only digits. E.g. `[1]` or `[42]`.
 - **String**<br>
-Must be wrapped in double quotes, `""`, and does not accept modifiers. E.g. `["foo"]` or `[""]`. As for [strings](#filtering-filter-filter_types-strings), double quotes inside any of the strings must be escaped by backslash, e.g. `"\""`.
+Must be wrapped in double quotes, `""`, and does not accept modifiers. E.g. `["foo"]` or `[""]`. As for [strings](#filtering-filter-filter_types-strings), double quotes inside any of the strings must be escaped by backslash, e.g. `["\""]`.
 
 Syntaxes are (as you may have noticed) similar - but not always identical - to the previously described syntaxes for each of the data types.
 
@@ -644,13 +644,15 @@ The readily available bridges are:
 
 - [`Kafoso\Questful\Model\Bridge\Doctrine\Doctrine2_1`](Kafoso/Questful/Model/Bridge/Doctrine/Doctrine2_1.php)<br>
 For use with `Doctrine\ORM\QueryBuilder` (http://www.doctrine-project.org/). Doctrine version 2.1 and above.<br>
+Requires handlers for `REGEXP` and `BINARY`. You may implement these yourself or simply use https://github.com/beberlei/DoctrineExtensions.<br>
 
 - [`Kafoso\Questful\Model\Bridge\PdoMysql\PdoMysql5_5`](Kafoso/Questful/Model/Bridge/PdoMysql/PdoMysql5_5.php)<br>
-For use with PDO MySQL versions 5.5 and above (http://php.net/manual/en/book.pdo.php).
-<br>
+For use with PDO MySQL versions 5.5 and above (http://php.net/manual/en/book.pdo.php).<br>
+Requires `REGEXP`.<br>
 
 - [`Kafoso\Questful\Model\Bridge\PdoSqlite\PdoSqlite3`](Kafoso/Questful/Model/Bridge/PdoSqlite\PdoSqlite3.php)<br>
 For use with PDO Sqlite3 (http://php.net/manual/en/book.sqlite3.php).<br>
+Requires handlers for `REGEXP` and `XOR`. You may implement these yourself or simply use `Kafoso\Questful\Helper\Sqlite3Helper`. Both are functions, rather than operators, and are used as `REGEXP(<expression>, <value>)` and `XOR(0, 1)`.<br>
 
 
 You may implement your own bridges by extending [`Kafoso\Questful\Model\Bridge\AbstractBridge`](Kafoso/Questful/Model/Bridge/AbstractBridge.php).
