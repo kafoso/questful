@@ -1,0 +1,35 @@
+array(3) {
+  ["filterExpression"]=>
+  NULL
+  ["filters"]=>
+  array(1) {
+    [0]=>
+    array(7) {
+      ["expression"]=>
+      string(4) "id>1"
+      ["extra"]=>
+      array(0) {
+      }
+      ["key"]=>
+      string(2) "id"
+      ["operator"]=>
+      string(1) ">"
+      ["type"]=>
+      string(7) "integer"
+      ["value"]=>
+      int(1)
+      ["valueDataType"]=>
+      string(7) "integer"
+    }
+  }
+  ["sorts"]=>
+  array(1) {
+    [0]=>
+    array(2) {
+      ["key"]=>
+      string(4) "name"
+      ["isAscending"]=>
+      bool(true)
+    }
+  }
+}

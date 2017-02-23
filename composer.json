@@ -1,0 +1,31 @@
+{
+    "name": "kasper.soefren/questful",
+    "description": "An interfacing tool providing a sensible link between HTTP query contents and a RESTful API. The name \"Questful\" is a word play and concatenation of the words \"Query\" (from HTTP) and \"RESTful\".",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Kasper Søfren",
+            "email": "soefritz@gmail.com"
+        }
+    ],
+    "require": {
+        "beberlei/DoctrineExtensions": "1.0.11",
+        "doctrine/orm": "2.5",
+        "nikic/php-parser": "3.0",
+        "symfony/validator": "2.8"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "4.8"
+    },
+    "config": {
+        "platform": {
+            "php": "5.6.0"
+        }
+    },
+    "autoload": {
+        "psr-4": {
+            "Kafoso\\Questful\\": "src/Kafoso/Questful"
+        }
+    }
+}

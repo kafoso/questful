@@ -1,0 +1,10 @@
+Sample SQL Query:
+    SELECT u.*
+    FROM User u
+    JOIN Company c ON (u.company_id = c.id)
+    (u.timeCreated >= BINARY :filter_0 AND c.id = :filter_1);
+Parameters: Array
+(
+    [filter_0] => 2016-01-01
+    [filter_1] => 2
+)

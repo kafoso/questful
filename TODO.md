@@ -1,0 +1,4 @@
+- Mention "Allowable" classes and their usage in README under "Mapping and validation".
+- Make error codes unique for each exception. E.g. error code 3 to 3000.
+- Make "filter" and "sort" changable by parser.
+- Translate PCRE to POSIX for MySql and Doctrine bridges.

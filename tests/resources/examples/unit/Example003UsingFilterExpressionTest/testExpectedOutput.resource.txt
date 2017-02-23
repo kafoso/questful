@@ -1,0 +1,71 @@
+array(3) {
+  ["orderBy"]=>
+  NULL
+  ["parameters"]=>
+  array(2) {
+    ["filter_0"]=>
+    int(10)
+    ["filter_1"]=>
+    int(100)
+  }
+  ["where"]=>
+  string(40) "(u.id < :filter_1 AND u.id >= :filter_0)"
+}
+array(3) {
+  ["filterExpression"]=>
+  array(3) {
+    ["expressionNormalized"]=>
+    string(5) "1and0"
+    ["expressionOriginal"]=>
+    string(5) "1and0"
+    ["indexes"]=>
+    array(2) {
+      [0]=>
+      int(0)
+      [1]=>
+      int(1)
+    }
+  }
+  ["filters"]=>
+  array(2) {
+    [0]=>
+    array(7) {
+      ["expression"]=>
+      string(6) "id>=10"
+      ["extra"]=>
+      array(0) {
+      }
+      ["key"]=>
+      string(2) "id"
+      ["operator"]=>
+      string(2) ">="
+      ["type"]=>
+      string(7) "integer"
+      ["value"]=>
+      int(10)
+      ["valueDataType"]=>
+      string(7) "integer"
+    }
+    [1]=>
+    array(7) {
+      ["expression"]=>
+      string(6) "id<100"
+      ["extra"]=>
+      array(0) {
+      }
+      ["key"]=>
+      string(2) "id"
+      ["operator"]=>
+      string(1) "<"
+      ["type"]=>
+      string(7) "integer"
+      ["value"]=>
+      int(100)
+      ["valueDataType"]=>
+      string(7) "integer"
+    }
+  }
+  ["sorts"]=>
+  array(0) {
+  }
+}

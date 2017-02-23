@@ -1,0 +1,43 @@
+array(3) {
+  ["orderBy"]=>
+  string(10) "u.name ASC"
+  ["parameters"]=>
+  array(1) {
+    ["filter_0"]=>
+    int(1)
+  }
+  ["where"]=>
+  string(18) "(u.id > :filter_0)"
+}
+Sample SQL Query:
+
+SELECT * FROM User u (u.id > :filter_0) ORDER BY u.name ASC;
+Parameters: Array
+(
+    [filter_0] => 1
+)
+
+
+Sample JSON metadata:
+
+{
+    "filterExpression": null,
+    "filters": [
+        {
+            "expression": "id>1",
+            "extra": [
+            ],
+            "key": "id",
+            "operator": ">",
+            "type": "integer",
+            "value": 1,
+            "valueDataType": "integer"
+        }
+    ],
+    "sorts": [
+        {
+            "key": "name",
+            "isAscending": true
+        }
+    ]
+}

@@ -1,0 +1,12 @@
+[
+    {
+        "id": 1,
+        "name": "Foo",
+        "timeCreated": "2015-01-01"
+    },
+    {
+        "id": 2,
+        "name": "Bar",
+        "timeCreated": "2016-01-02"
+    }
+]
