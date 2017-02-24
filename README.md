@@ -543,7 +543,7 @@ In the above example, `$mapping->validate()` will throw a [`Kafoso\Questful\Exce
 <a name="mapping_and_validation-restricting_operators"></a>
 ## Restricting operators
 
-Operators are provided as the 2nd argument in [`\Kafoso\Questful\Model\Mapping\Allowable\Filter\AbstractAllowedFilter`](src/Kafoso/Questful/Mapping/Allowable/Filter/AbstractAllowedFilter.php), which accepts `null` or a non-empty array of strings. As mentioned previously, operators must be one of the available operators for the respective [filter type](#filtering-filter-filter_types). Otherwise an [`\Kafoso\Questful\Exception\UnexpectedValueException`](src/Kafoso/Questful/Exception/UnexpectedValueException.php) is thrown.
+Operators are provided as the 2nd argument in [`\Kafoso\Questful\Model\Mapping\Allowable\Filter\AbstractAllowedFilter`](src/Kafoso/Questful/Model/Mapping/Allowable/Filter/AbstractAllowedFilter.php), which accepts `null` or a non-empty array of strings. As mentioned previously, operators must be one of the available operators for the respective [filter type](#filtering-filter-filter_types). Otherwise an [`\Kafoso\Questful\Exception\UnexpectedValueException`](src/Kafoso/Questful/Exception/UnexpectedValueException.php) is thrown.
 
 See [006-restrict-operators](#examples-006-restrict-operators) for a practical example.
 
