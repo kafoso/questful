@@ -82,7 +82,7 @@ class PdoMySql5_5 extends AbstractPdoMySql
                         } else {
                             $sql .= "{$column} {$not}LIKE BINARY :{$parameterName} ESCAPE '\'";
                         }
-                        $value = addcslashes($value, "\\%");
+                        $value = addcslashes($value, "%_\\");
                         if ($filter->hasWildcardLeft()) {
                             $value = "%" . $value;
                         }

@@ -83,7 +83,7 @@ class PdoSqlite3 extends AbstractPdoSqlite
                         } else {
                             $sql .= "{$column} {$not}LIKE :{$parameterName} ESCAPE '\'";
                         }
-                        $value = addcslashes($value, "\\%");
+                        $value = addcslashes($value, "%_\\");
                         if ($filter->hasWildcardLeft()) {
                             $value = "%" . $value;
                         }

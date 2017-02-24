@@ -64,7 +64,7 @@ class PdoMySql5_5Test extends \PHPUnit_Framework_TestCase
     public function testGenerateEscapesLikeSearchCorrectly()
     {
         $queryParserFactory = new QueryParserFactory;
-        $queryParser = $queryParserFactory->createFromUri('?filter%5B%5D=foo%3D%25"some%string\\with-percentages-and-backslashes"%');
+        $queryParser = $queryParserFactory->createFromUri('?filter%5B%5D=foo%3D%25"_\\\\%"%25');
         $queryParser->parse();
         $mapping = new Mapping($queryParser);
         $mapping
@@ -74,7 +74,7 @@ class PdoMySql5_5Test extends \PHPUnit_Framework_TestCase
         $pdoMySql = new PdoMySql5_5($mapping);
         $pdoMySql->generate();
         $this->assertSame("(t.foo LIKE BINARY :filter_0 ESCAPE '\\')", $pdoMySql->getWhere());
-        $this->assertSame(["filter_0" => "%some\\%string\\\\with-percentages-and-backslashes%"], $pdoMySql->getParameters());
+        $this->assertSame(["filter_0" => "%\\_\\\\\\%%"], $pdoMySql->getParameters());
     }
 
     /**

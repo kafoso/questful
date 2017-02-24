@@ -9,6 +9,12 @@ class StringFilterTest extends \PHPUnit_Framework_TestCase
         $this->assertInstanceOf(StringFilter::class, $stringFilter);
     }
 
+    public function testConstructorCorrectlyEscapesStringSyntax()
+    {
+        $stringFilter = new StringFilter('foo="\\\\\\""', "foo", '"\\\\\\""', "=");
+        $this->assertSame('\\"', $stringFilter->getValue());
+    }
+
     public function testBasicGetters()
     {
         $stringFilter = new StringFilter('foo="bar"', "foo", "\"bar\"");

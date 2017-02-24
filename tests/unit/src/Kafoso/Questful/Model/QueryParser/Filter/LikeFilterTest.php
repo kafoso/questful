@@ -9,6 +9,12 @@ class LikeFilterTest extends \PHPUnit_Framework_TestCase
         $this->assertInstanceOf(LikeFilter::class, $LikeFilter);
     }
 
+    public function testConstructorCorrectlyEscapesStringSyntax()
+    {
+        $LikeFilter = new LikeFilter('foo=%"\\\\\\""', "foo", '%"\\\\\\""', "=");
+        $this->assertSame('\\"', $LikeFilter->getValue());
+    }
+
     public function testBasicGetters()
     {
         $LikeFilter = new LikeFilter('foo=%"bar"%', "foo", "%\"bar\"%", "=");

@@ -73,7 +73,7 @@ class Doctrine2_1Test extends \PHPUnit_Framework_TestCase
     public function testGenerateEscapesLikeSearchCorrectly()
     {
         $queryParserFactory = new QueryParserFactory;
-        $queryParser = $queryParserFactory->createFromUri('?filter%5B%5D=foo%3D%25"some%string\\with-percentages-and-backslashes"%');
+        $queryParser = $queryParserFactory->createFromUri('?filter%5B%5D=foo%3D%25"_\\\\%"%25');
         $queryParser->parse();
         $mapping = new Mapping($queryParser);
         $mapping
@@ -83,7 +83,7 @@ class Doctrine2_1Test extends \PHPUnit_Framework_TestCase
         $doctrine = new Doctrine2_1($mapping);
         $doctrine->generate();
         $this->assertSame("(t.foo LIKE BINARY(:filter_0) ESCAPE '\\')", $doctrine->getWhere());
-        $this->assertSame(["filter_0" => "%some\\%string\\\\with-percentages-and-backslashes%"], $doctrine->getParameters());
+        $this->assertSame(["filter_0" => "%\\_\\\\\\%%"], $doctrine->getParameters());
     }
 
     /**

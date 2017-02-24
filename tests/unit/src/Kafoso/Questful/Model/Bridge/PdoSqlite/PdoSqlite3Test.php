@@ -72,7 +72,7 @@ class PdoSqlite3Test extends \PHPUnit_Framework_TestCase
     public function testGenerateEscapesLikeSearchCorrectly()
     {
         $queryParserFactory = new QueryParserFactory;
-        $queryParser = $queryParserFactory->createFromUri('?filter%5B%5D=foo%3D%25"some%string\\with-percentages-and-backslashes"%');
+        $queryParser = $queryParserFactory->createFromUri('?filter%5B%5D=foo%3D%25"_\\\\%"%25');
         $queryParser->parse();
         $mapping = new Mapping($queryParser);
         $mapping
@@ -82,7 +82,7 @@ class PdoSqlite3Test extends \PHPUnit_Framework_TestCase
         $pdoSqlite = new PdoSqlite3($mapping);
         $pdoSqlite->generate();
         $this->assertSame("(t.foo LIKE :filter_0 ESCAPE '\\')", $pdoSqlite->getWhere());
-        $this->assertSame(["filter_0" => "%some\\%string\\\\with-percentages-and-backslashes%"], $pdoSqlite->getParameters());
+        $this->assertSame(["filter_0" => "%\\_\\\\\\%%"], $pdoSqlite->getParameters());
     }
 
     /**

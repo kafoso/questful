@@ -18,10 +18,10 @@ class PdoSqliteIntegrationTest extends \PHPUnit_Framework_TestCase
             unlink($this->dbFilePath);
         }
         $this->db = new SQLite3($this->dbFilePath);
-        $this->db->query("CREATE TABLE User (id INT(11), name VARCHAR(255), timeCreated DATETIME DEFAULT CURRENT_TIMESTAMP);");
-        $this->db->query("INSERT INTO User VALUES (1, \"Foo\", \"2015-01-01\")");
-        $this->db->query("INSERT INTO User VALUES (2, \"Bar\", \"2016-01-01\")");
-        $this->db->query("INSERT INTO User VALUES (3, \"Baz\", \"2016-02-02\")");
+        $this->db->query("CREATE TABLE User (id INT(11), name VARCHAR(255), timeCreated DATETIME DEFAULT CURRENT_TIMESTAMP, note VARCHAR(255) DEFAULT NULL);");
+        $this->db->query("INSERT INTO User VALUES (1, \"Foo\", \"2015-01-01\", NULL)");
+        $this->db->query("INSERT INTO User VALUES (2, \"Bar\", \"2016-01-01\", NULL)");
+        $this->db->query("INSERT INTO User VALUES (3, \"Baz\", \"2016-02-02\", \"\\_%\")");
         $this->db->query("CREATE TABLE UserGroup (id INT(11), name VARCHAR(255));");
         $this->db->query("INSERT INTO UserGroup VALUES (1, \"Admin\")");
         $this->db->query("INSERT INTO UserGroup VALUES (2, \"Guest\")");
@@ -81,6 +81,7 @@ class PdoSqliteIntegrationTest extends \PHPUnit_Framework_TestCase
                 'id' => 1,
                 'name' => "Foo",
                 'timeCreated' => "2015-01-01",
+                'note' => null,
             ]
         ];
         $this->assertSame($expected, $users);
@@ -130,11 +131,56 @@ class PdoSqliteIntegrationTest extends \PHPUnit_Framework_TestCase
                 'id' => 1,
                 'name' => "Foo",
                 'timeCreated' => "2015-01-01",
+                'note' => null,
             ],
             [
                 'id' => 3,
                 'name' => "Baz",
                 'timeCreated' => "2016-02-02",
+                'note' => "\\_%",
+            ],
+        ];
+        $this->assertSame($expected, $users);
+    }
+
+    public function testLike()
+    {
+        $queryParserFactory = new QueryParserFactory;
+        $queryParser = $queryParserFactory->createFromUri('?filter[]=u.note=%"\\_%"%');
+        $queryParser->parse();
+        $mapping = new Mapping($queryParser);
+        $mapping
+            ->relate('u.note', 'u.note')
+            ->allow(new Allowable\Filter\AllowedLikeFilter("u.note"))
+            ->validate();
+        $pdoSqlite = new PdoSqlite3($mapping);
+        $pdoSqlite->generate();
+        $sql =
+            "SELECT u.*
+            FROM User u";
+        if ($pdoSqlite->getWhere()) {
+            $sql .= " WHERE {$pdoSqlite->getWhere()}";
+        }
+        $expectedSql =
+            "SELECT u.*
+            FROM User u WHERE (u.note LIKE :filter_0 ESCAPE '\\')";
+        $this->assertSame($expectedSql, $sql);
+        $parameters = $pdoSqlite->getParameters();
+        $stmt = $this->db->prepare($sql);
+        foreach ($parameters as $k => $v) {
+            $stmt->bindParam(":{$k}", $parameters[$k]);
+        }
+        $result = $stmt->execute();
+        $users = [];
+        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+            $users[] = $row;
+        }
+        $expected = [
+            [
+                'id' => 3,
+                'name' => "Baz",
+                'timeCreated' => "2016-02-02",
+                'note' => "\\_%",
             ],
         ];
         $this->assertSame($expected, $users);
@@ -179,11 +225,13 @@ class PdoSqliteIntegrationTest extends \PHPUnit_Framework_TestCase
                 'id' => 1,
                 'name' => "Foo",
                 'timeCreated' => "2015-01-01",
+                'note' => null,
             ],
             [
                 'id' => 2,
                 'name' => "Bar",
                 'timeCreated' => "2016-01-01",
+                'note' => null,
             ],
         ];
         $this->assertSame($expected, $users);
@@ -228,6 +276,7 @@ class PdoSqliteIntegrationTest extends \PHPUnit_Framework_TestCase
                 'id' => 2,
                 'name' => "Bar",
                 'timeCreated' => "2016-01-01",
+                'note' => null,
             ],
         ];
         $this->assertSame($expected, $users);
@@ -271,11 +320,13 @@ class PdoSqliteIntegrationTest extends \PHPUnit_Framework_TestCase
                 'id' => 2,
                 'name' => "Bar",
                 'timeCreated' => "2016-01-01",
+                'note' => null,
             ],
             [
                 'id' => 3,
                 'name' => "Baz",
                 'timeCreated' => "2016-02-02",
+                'note' => "\\_%",
             ],
         ];
         $this->assertSame($expected, $users);

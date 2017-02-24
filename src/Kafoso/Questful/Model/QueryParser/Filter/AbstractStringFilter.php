@@ -42,7 +42,8 @@ abstract class AbstractStringFilter extends AbstractFilter
     {
         $parser = (new ParserFactory)->create(ParserFactory::ONLY_PHP5);
         $code = sprintf('<?php "%s";', $value);
-        $parser->parse($code);
+        $syntaxTree = $parser->parse($code);
+        return $syntaxTree;
     }
 
     public static function getAvailableOperators()

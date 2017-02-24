@@ -25,8 +25,9 @@ class StringFilter extends AbstractStringFilter implements ScalarFilterInterface
             ), QueryParser::EXCEPTION_CODE);
         }
         $innerValue = $match[1]; // Without modifiers and double quotes
+        $syntaxTree = null;
         try {
-            $this->validateSyntax($innerValue);
+            $syntaxTree = $this->validateSyntax($innerValue);
         } catch (\PhpParser\Error $e) {
             throw new BadRequestException(sprintf(
                 "String syntax in 'filter[%s]=%s' is invalid: %s",
@@ -42,6 +43,7 @@ class StringFilter extends AbstractStringFilter implements ScalarFilterInterface
                 $innerValue
             ), QueryParser::EXCEPTION_CODE, $e);
         }
+        $innerValue = $syntaxTree[0]->value;
         parent::__construct($expression, $key, $innerValue, $operator);
         if (isset($match[3]) && $match[3]) {
             $this->modifiers = array_unique(str_split($match[3]));

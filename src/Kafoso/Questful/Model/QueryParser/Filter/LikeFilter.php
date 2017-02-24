@@ -43,8 +43,9 @@ class LikeFilter extends AbstractStringFilter
                 $value
             ), QueryParser::EXCEPTION_CODE);
         }
+        $syntaxTree = null;
         try {
-            $this->validateSyntax($innerValue);
+            $syntaxTree = $this->validateSyntax($innerValue);
         } catch (\PhpParser\Error $e) {
             throw new BadRequestException(sprintf(
                 "String syntax in 'filter[%s]=%s' is invalid: %s",
@@ -60,6 +61,7 @@ class LikeFilter extends AbstractStringFilter
                 $innerValue
             ), QueryParser::EXCEPTION_CODE, $e);
         }
+        $innerValue = $syntaxTree[0]->value;
         parent::__construct($expression, $key, $innerValue, $operator);
         if (isset($match[8]) && $match[8]) {
             $this->modifiers = array_unique(str_split($match[8]));
