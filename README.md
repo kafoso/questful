@@ -597,6 +597,8 @@ Bridging in Questful means translating the query values of the HTTP request to a
 
 A bridge (e.g. [`Kafoso\Questful\Model\Bridge\PdoMysql`](src/Kafoso/Questful/Model/Bridge/PdoMysql.php)) outputs a partial set of conditions, parameters, and sorting, which is consumable by the storage unit. For MySQL using PDO, a series of `WHERE` and `ORDER BY` conditions are produced as SQL strings, together with an array of parameters, which must be provided in a prepared statement.
 
+The character encoding of bridges is "**UTF-8**" by default, but may be changed.
+
 Usage sample:
 
 ```php

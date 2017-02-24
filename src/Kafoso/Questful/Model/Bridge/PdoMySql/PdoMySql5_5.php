@@ -22,11 +22,11 @@ class PdoMySql5_5 extends AbstractPdoMySql
         $this->where = null;
         $this->parameters = [];
         $this->orderBy = null;
-        if ($this->mapping->getQueryParser()->getFilters()) {
+        if ($this->getMapping()->getQueryParser()->getFilters()) {
             $conditions = [];
-            $allowedFilters = $this->mapping->getAllowedFilters();
+            $allowedFilters = $this->getMapping()->getAllowedFilters();
             if ($allowedFilters) {
-                foreach ($this->mapping->getQueryParser()->getFilters() as $index => $filter) {
+                foreach ($this->getMapping()->getQueryParser()->getFilters() as $index => $filter) {
                     $allowedFilter = null;
                     foreach ($allowedFilters as $k => $af) {
                         if ($af->getKey() === $filter->getKey()) {
@@ -39,7 +39,7 @@ class PdoMySql5_5 extends AbstractPdoMySql
                     if (!$allowedFilter) {
                         continue;
                     }
-                    $column = $this->mapping->getColumnFromKey($allowedFilter->getKey());
+                    $column = $this->getMapping()->getColumnFromKey($allowedFilter->getKey());
 
                     $sql = "";
                     $parameterName = "filter_{$index}";
@@ -65,7 +65,7 @@ class PdoMySql5_5 extends AbstractPdoMySql
                             if ($filter instanceof StringFilter) {
                                 if (false == $filter->isCaseSensitive()) {
                                     $sql .= "LOWER({$column}) {$operator} BINARY :{$parameterName}";
-                                    $value = mb_strtolower($value);
+                                    $value = mb_strtolower($value, $this->getEncoding());
                                 } else {
                                     $sql .= "{$column} {$operator} BINARY :{$parameterName}";
                                 }
@@ -78,7 +78,7 @@ class PdoMySql5_5 extends AbstractPdoMySql
                         $value = $filter->getValue();
                         if (false == $filter->isCaseSensitive()) {
                             $sql .= "LOWER({$column}) {$not}LIKE BINARY :{$parameterName} ESCAPE '\'";
-                            $value = mb_strtolower($value);
+                            $value = mb_strtolower($value, $this->getEncoding());
                         } else {
                             $sql .= "{$column} {$not}LIKE BINARY :{$parameterName} ESCAPE '\'";
                         }
@@ -101,7 +101,7 @@ class PdoMySql5_5 extends AbstractPdoMySql
                         foreach ($value as $index => $item) {
                             $parameterNameItem = "{$parameterName}_{$index}";
                             if (is_string($item) && false == $filter->isCaseSensitive()) {
-                                $item = mb_strtolower($item);
+                                $item = mb_strtolower($item, $this->getEncoding());
                             }
                             $sqlPlaceholders[] = ":{$parameterNameItem}";
                             $this->parameters[$parameterNameItem] = $item;
@@ -112,7 +112,7 @@ class PdoMySql5_5 extends AbstractPdoMySql
                         $value = $filter->getValue();
                         if (false == $filter->isCaseSensitive()) {
                             $sql .= "LOWER({$column}) {$not}REGEXP BINARY :{$parameterName}";
-                            $value = mb_strtolower($value);
+                            $value = mb_strtolower($value, $this->getEncoding());
                         } else {
                             $sql .= "{$column} {$not}REGEXP BINARY :{$parameterName}";
                         }
@@ -128,9 +128,9 @@ class PdoMySql5_5 extends AbstractPdoMySql
                 }
             }
             if ($conditions) {
-                if ($this->mapping->getQueryParser()->getFilterExpression()) {
+                if ($this->getMapping()->getQueryParser()->getFilterExpression()) {
                     $sql = [];
-                    foreach ($this->mapping->getQueryParser()->getFilterExpression()->getLexer()->getTokensNormalized() as $token) {
+                    foreach ($this->getMapping()->getQueryParser()->getFilterExpression()->getLexer()->getTokensNormalized() as $token) {
                         if (preg_match("/^\d+$/", $token)) {
                             $sql[] = $conditions[$token];
                         } elseif (in_array($token, ["and", "or", "xor"])) {
@@ -149,11 +149,11 @@ class PdoMySql5_5 extends AbstractPdoMySql
                 }
             }
         }
-        if ($this->mapping->getQueryParser()->getSorts()) {
+        if ($this->getMapping()->getQueryParser()->getSorts()) {
             $sorts = [];
-            $AllowedSortings = $this->mapping->getAllowedSorts();
+            $AllowedSortings = $this->getMapping()->getAllowedSorts();
             if ($AllowedSortings) {
-                foreach ($this->mapping->getQueryParser()->getSorts() as $index => $sort) {
+                foreach ($this->getMapping()->getQueryParser()->getSorts() as $index => $sort) {
                     $AllowedSorting = null;
                     foreach ($AllowedSortings as $k => $ms) {
                         if ($ms->getKey() === $sort->getKey()) {
@@ -164,7 +164,7 @@ class PdoMySql5_5 extends AbstractPdoMySql
                     if (!$AllowedSorting) {
                         continue;
                     }
-                    $column = $this->mapping->getColumnFromKey($AllowedSorting->getKey());
+                    $column = $this->getMapping()->getColumnFromKey($AllowedSorting->getKey());
                     $sorts[$index] = " {$column} " . ($sort->isAscending() ? "ASC" : "DESC");
                 }
                 $this->orderBy = preg_replace('/\s+/', ' ', trim(implode(", ", $sorts)));

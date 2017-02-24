@@ -27,11 +27,11 @@ class Doctrine2_1 extends AbstractDoctrine
         $this->where = null;
         $this->parameters = [];
         $this->orderBy = [];
-        if ($this->mapping->getQueryParser()->getFilters()) {
+        if ($this->getMapping()->getQueryParser()->getFilters()) {
             $conditions = [];
-            $allowedFilters = $this->mapping->getAllowedFilters();
+            $allowedFilters = $this->getMapping()->getAllowedFilters();
             if ($allowedFilters) {
-                foreach ($this->mapping->getQueryParser()->getFilters() as $index => $filter) {
+                foreach ($this->getMapping()->getQueryParser()->getFilters() as $index => $filter) {
                     $allowedFilter = null;
                     foreach ($allowedFilters as $k => $af) {
                         if ($af->getKey() === $filter->getKey()) {
@@ -44,7 +44,7 @@ class Doctrine2_1 extends AbstractDoctrine
                     if (!$allowedFilter) {
                         continue;
                     }
-                    $column = $this->mapping->getColumnFromKey($allowedFilter->getKey());
+                    $column = $this->getMapping()->getColumnFromKey($allowedFilter->getKey());
 
                     $sql = "";
                     $parameterName = "filter_{$index}";
@@ -70,7 +70,7 @@ class Doctrine2_1 extends AbstractDoctrine
                             if ($filter instanceof StringFilter) {
                                 if (false == $filter->isCaseSensitive()) {
                                     $sql .= "LOWER({$column}) {$operator} BINARY(:{$parameterName})";
-                                    $value = mb_strtolower($value);
+                                    $value = mb_strtolower($value, $this->getEncoding());
                                 } else {
                                     $sql .= "{$column} {$operator} BINARY(:{$parameterName})";
                                 }
@@ -83,7 +83,7 @@ class Doctrine2_1 extends AbstractDoctrine
                         $value = $filter->getValue();
                         if (false == $filter->isCaseSensitive()) {
                             $sql .= "LOWER({$column}) {$not}LIKE BINARY(:{$parameterName}) ESCAPE '\'";
-                            $value = mb_strtolower($value);
+                            $value = mb_strtolower($value, $this->getEncoding());
                         } else {
                             $sql .= "{$column} {$not}LIKE BINARY(:{$parameterName}) ESCAPE '\'";
                         }
@@ -106,7 +106,7 @@ class Doctrine2_1 extends AbstractDoctrine
                         foreach ($value as $index => $item) {
                             $parameterNameItem = "{$parameterName}_{$index}";
                             if (is_string($item) && false == $filter->isCaseSensitive()) {
-                                $item = mb_strtolower($item);
+                                $item = mb_strtolower($item, $this->getEncoding());
                             }
                             $sqlPlaceholders[] = "BINARY(:{$parameterNameItem})";
                             $this->parameters[$parameterNameItem] = $item;
@@ -117,7 +117,7 @@ class Doctrine2_1 extends AbstractDoctrine
                         $value = $filter->getValue();
                         if (false == $filter->isCaseSensitive()) {
                             $sql .= "{$not}REGEXP(LOWER({$column}), BINARY(:{$parameterName})) = 1";
-                            $value = mb_strtolower($value);
+                            $value = mb_strtolower($value, $this->getEncoding());
                         } else {
                             $sql .= "{$not}REGEXP({$column}, BINARY(:{$parameterName})) = 1";
                         }
@@ -133,9 +133,9 @@ class Doctrine2_1 extends AbstractDoctrine
                 }
             }
             if ($conditions) {
-                if ($this->mapping->getQueryParser()->getFilterExpression()) {
+                if ($this->getMapping()->getQueryParser()->getFilterExpression()) {
                     $sql = [];
-                    foreach ($this->mapping->getQueryParser()->getFilterExpression()->getLexer()->getTokensNormalized() as $token) {
+                    foreach ($this->getMapping()->getQueryParser()->getFilterExpression()->getLexer()->getTokensNormalized() as $token) {
                         if (preg_match("/^\d+$/", $token)) {
                             $sql[] = $conditions[$token];
                         } elseif (in_array($token, ["and", "or", "xor"])) {
@@ -154,11 +154,11 @@ class Doctrine2_1 extends AbstractDoctrine
                 }
             }
         }
-        if ($this->mapping->getQueryParser()->getSorts()) {
+        if ($this->getMapping()->getQueryParser()->getSorts()) {
             $orderBy = [];
-            $AllowedSortings = $this->mapping->getAllowedSorts();
+            $AllowedSortings = $this->getMapping()->getAllowedSorts();
             if ($AllowedSortings) {
-                foreach ($this->mapping->getQueryParser()->getSorts() as $index => $sort) {
+                foreach ($this->getMapping()->getQueryParser()->getSorts() as $index => $sort) {
                     $AllowedSorting = null;
                     foreach ($AllowedSortings as $k => $ms) {
                         if ($ms->getKey() === $sort->getKey()) {
@@ -169,7 +169,7 @@ class Doctrine2_1 extends AbstractDoctrine
                     if (!$AllowedSorting) {
                         continue;
                     }
-                    $column = $this->mapping->getColumnFromKey($AllowedSorting->getKey());
+                    $column = $this->getMapping()->getColumnFromKey($AllowedSorting->getKey());
                     $orderBy[$index] = [
                         $column,
                         ($sort->isAscending() ? "ASC" : "DESC"),
