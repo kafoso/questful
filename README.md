@@ -77,7 +77,7 @@ In Questful, filters must be arrays and thus, an HTTP query must be specified as
 
 Indexes are used in conjunction with [filter expressions](#filtering-filter_expression), which is explained futher down.
 
-If a non-integer (e.g. `filter[a]=foo="bar"`) or negative integer (e.g. `filter[-1]=foo="bar"`) is provided as an index a `Kafoso\Questful\Exception\BadRequestException` is thrown.
+If a non-integer (e.g. `filter[a]=foo="bar"`) or negative integer (e.g. `filter[-1]=foo="bar"`) is provided as an index a [`Kafoso\Questful\Exception\BadRequestException`](src/Kafoso/Questful/Exception/BadRequestException.php) is thrown.
 
 Notice: The name "filter" is **singular**.
 
@@ -200,7 +200,7 @@ Strings must be wrapped in double quotes `""`. The double quotes make strings cl
 
 The value part, i.e. the double quotes and the contents inside it, must evaluate to PHP syntax. Naturally, encapsed variables (e.g `"$a"`) are not supported and will be considered to be part of the string. Double quotes inside the string must be escaped by backslash, e.g. `"\""`.
 
-Single quotes are **not supported** and will cause a `\Kafoso\Questful\Exception\BadRequestException` to be thrown.
+Single quotes are **not supported** and will cause a [`\Kafoso\Questful\Exception\BadRequestException`](src/Kafoso/Questful/Exception/BadRequestException.php) to be thrown.
 
 ##### Accepted operators
 
@@ -288,7 +288,7 @@ An array search is a more manageable alternative to writing a series of `or`-sta
 
 Array filters are wrapped in square brackets, `[]` - and not round parentheses (as is the case in MySQL) - and values must be comma separated.
 
-The contents of the square brackets must evaluate to PHP syntax. Otherwise, a `\Kafoso\Questful\Exception\BadRequestException` is thrown.
+The contents of the square brackets must evaluate to PHP syntax. Otherwise, a [`\Kafoso\Questful\Exception\BadRequestException`](src/Kafoso/Questful/Exception/BadRequestException.php) is thrown.
 
 ##### Syntax
 
@@ -401,7 +401,7 @@ Some operators are not usable with certain filtering options, though:
 
 [Strings](#filtering-filter-filter_types-strings) do accept `>`, `>=`, `<`, `<=`, retaining the need for making comparison against certain values. E.g. dates.
 
-In the [mapping](#mapping_and_validation), you may further [restrict the accepted operators](#mapping_and_validation-restricting_operators), e.g. so that an integer only accepts `=`. However, the specified operators must be one of the available operators for the respective [filter type](#filtering-filter-filter_types). Otherwise an `\Kafoso\Questful\Exception\UnexpectedValueException` is thrown.
+In the [mapping](#mapping_and_validation), you may further [restrict the accepted operators](#mapping_and_validation-restricting_operators), e.g. so that an integer only accepts `=`. However, the specified operators must be one of the available operators for the respective [filter type](#filtering-filter-filter_types). Otherwise an [`\Kafoso\Questful\Exception\UnexpectedValueException`](src/Kafoso/Questful/Exception/UnexpectedValueException.php) is thrown.
 
 <a name="filtering-filter_expression"></a>
 ## `?filterExpression`
@@ -417,9 +417,9 @@ By default, all filters are concatenated using the logical operator `AND`. I.e. 
   - `xor` (Exclusive or. One or the other must be true, but not both at once.)
 - Digits (0-9), which represent the indexes in the `filter` option.
 
-The expression must evaluate to PHP syntax. I.e. placement of the tokens, e.g. matching and proper closing of parentheses, is mandatory. Otherwise a `\Kafoso\Questful\Exception\BadRequestException` is thrown.
+The expression must evaluate to PHP syntax. I.e. placement of the tokens, e.g. matching and proper closing of parentheses, is mandatory. Otherwise a [`\Kafoso\Questful\Exception\BadRequestException`](src/Kafoso/Questful/Exception/BadRequestException.php) is thrown.
 
-Indexes in `filter[]` and `filterExpression` must match. If a mismatch occurs a `\Kafoso\Questful\Exception\BadRequestException` is thrown.
+Indexes in `filter[]` and `filterExpression` must match. If a mismatch occurs a [`\Kafoso\Questful\Exception\BadRequestException`](src/Kafoso/Questful/Exception/BadRequestException.php) is thrown.
 
 ### Example
 
@@ -459,7 +459,7 @@ The sorting syntax is much simpler than that of the [filtering](#filtering) mech
 
 The order of indexes is **significant**. Lower indexes get prioritized first, starting from zero. I.e. in `?sort[0]=foo&sort[1]=bar`, sorting on `foo` is performed before sorting on `bar`.
 
-Negative indexes (e.g. `?sort[-1]=foo`) will throw a `Kafoso\Questful\Exception\BadRequestException`.
+Negative indexes (e.g. `?sort[-1]=foo`) will throw a [`Kafoso\Questful\Exception\BadRequestException`](src/Kafoso/Questful/Exception/BadRequestException.php).
 
 ## Syntax
 
@@ -512,7 +512,7 @@ Questful allows you to sort case insensitively and binary-safe (e.g. when using 
 <a name="mapping_and_validation"></a>
 # Mapping and validation
 
-The class `Kafoso\Questful\Model\Mapping` creates a map between the keys provided via the HTTP request and the respective key/column in the storage, e.g. a column in a database. This map ensures shielding against injection attacks and reveals less information about the application and storage unit infrastructure.
+The class [`Kafoso\Questful\Model\Mapping`](src/Kafoso/Questful/Model/Mapping.php) creates a map between the keys provided via the HTTP request and the respective key/column in the storage, e.g. a column in a database. This map ensures shielding against injection attacks and reveals less information about the application and storage unit infrastructure.
 
 Relating a filter or sort key to a column is performed with the `relate` method. You may wildly obfuscate the naming of keys in the client should you desire, as long as they're correctly mapped to tables and columns server-side.
 
@@ -538,12 +538,12 @@ $mapping
 // All is good - "foo" is allowed
 ```
 
-In the above example, `$mapping->validate()` will throw a `Kafoso\Questful\Exception\BadRequestException` when a filter or sorting mismatch occurs. Calling `validate` is optional. However, filters - which have not been mapped - will be disregarded in the [bridging](#bridging_with_storage_units) logic.
+In the above example, `$mapping->validate()` will throw a [`Kafoso\Questful\Exception\BadRequestException`](src/Kafoso/Questful/Exception/BadRequestException.php) when a filter or sorting mismatch occurs. Calling `validate` is optional. However, filters - which have not been mapped - will be disregarded in the [bridging](#bridging_with_storage_units) logic.
 
 <a name="mapping_and_validation-restricting_operators"></a>
 ## Restricting operators
 
-Operators are provided as the 2nd argument in `\Kafoso\Questful\Model\Mapping\Allowable\Filter\AbstractAllowedFilter`, which accepts `null` or a non-empty array of strings. As mentioned previously, operators must be one of the available operators for the respective [filter type](#filtering-filter-filter_types). Otherwise an `\Kafoso\Questful\Exception\UnexpectedValueException` is thrown.
+Operators are provided as the 2nd argument in [`\Kafoso\Questful\Model\Mapping\Allowable\Filter\AbstractAllowedFilter`](src/Kafoso/Questful/Mapping/Allowable/Filter/AbstractAllowedFilter.php), which accepts `null` or a non-empty array of strings. As mentioned previously, operators must be one of the available operators for the respective [filter type](#filtering-filter-filter_types). Otherwise an [`\Kafoso\Questful\Exception\UnexpectedValueException`](src/Kafoso/Questful/Exception/UnexpectedValueException.php) is thrown.
 
 See [006-restrict-operators](#examples-006-restrict-operators) for a practical example.
 
@@ -572,9 +572,9 @@ Some common use cases include:
 - Expecting an integer to be within a range ([`Range`](http://symfony.com/doc/current/reference/constraints/Range.html)).
 - Expecting an integer to be an exact value, e.g. a user's ID ([`EqualTo`](http://symfony.com/doc/current/reference/constraints/EqualTo.html)).
 
-Validators are provided as the 3rd argument in `\Kafoso\Questful\Model\Mapping\Allowable\Filter\AbstractAllowedFilter`, which accepts `null` or an array of `\Symfony\Component\Validator\Constraint`.
+Validators are provided as the 3rd argument in [`\Kafoso\Questful\Model\Mapping\Allowable\Filter\AbstractAllowedFilter`](src/Kafoso/Questful/Model/Mapping/Allowable/Filter/AbstractAllowedFilter.php), which accepts `null` or an array of `\Symfony\Component\Validator\Constraint`.
 
-All validators are applied upon calling `\Kafoso\Questful\Model\Mapping->validate()`. If a violation occurs, a `Kafoso\Questful\Exception\BadRequestException` is thrown.
+All validators are applied upon calling [`\Kafoso\Questful\Model\Mapping->validate()`](src/Kafoso/Questful/Model/Mapping.php). If a violation occurs, a [`Kafoso\Questful\Exception\BadRequestException`](src/Kafoso/Questful/Exception/BadRequestException.php) is thrown.
 
 ### Sample
 
@@ -595,7 +595,7 @@ For a more detailed example, see [Validators](#examples-007-validators) under [E
 
 Bridging in Questful means translating the query values of the HTTP request to a format which is readable by a storage unit. And doing so in a safe manner.
 
-A bridge (e.g. [`Kafoso\Questful\Model\Bridge\PdoMysql`](Kafoso/Questful/Model/Bridge/PdoMysql.php)) outputs a partial set of conditions, parameters, and sorting, which is consumable by the storage unit. For MySQL using PDO, a series of `WHERE` and `ORDER BY` conditions are produced as SQL strings, together with an array of parameters, which must be provided in a prepared statement.
+A bridge (e.g. [`Kafoso\Questful\Model\Bridge\PdoMysql`](src/Kafoso/Questful/Model/Bridge/PdoMysql.php)) outputs a partial set of conditions, parameters, and sorting, which is consumable by the storage unit. For MySQL using PDO, a series of `WHERE` and `ORDER BY` conditions are produced as SQL strings, together with an array of parameters, which must be provided in a prepared statement.
 
 Usage sample:
 
@@ -634,7 +634,7 @@ var_dump($pdoMySql->toArray());
  */
 ```
 
-Notice how the index **42** carries over and becomes part of the parameter identifier `filter_42`. These indexes are safe to use (i.e. no risk of injection) since they are force-converted to integers. A non-digit or negative index cause a `Kafoso\Questful\Exception\BadRequestException` to be thrown.
+Notice how the index **42** carries over and becomes part of the parameter identifier `filter_42`. These indexes are safe to use (i.e. no risk of injection) since they are force-converted to integers. A non-digit or negative index cause a [`Kafoso\Questful\Exception\BadRequestException`](src/Kafoso/Questful/Exception/BadRequestException.php) to be thrown.
 
 You are free to add additional conditions and sorting in the SQL sentence. Notice that the contents of `where` above is always wrapped in parentheses.
 
@@ -642,30 +642,30 @@ You are free to add additional conditions and sorting in the SQL sentence. Notic
 
 The readily available bridges are:
 
-- [`Kafoso\Questful\Model\Bridge\Doctrine\Doctrine2_1`](Kafoso/Questful/Model/Bridge/Doctrine/Doctrine2_1.php)<br>
+- [`Kafoso\Questful\Model\Bridge\Doctrine\Doctrine2_1`](src/Kafoso/Questful/Model/Bridge/Doctrine/Doctrine2_1.php)<br>
 For use with `Doctrine\ORM\QueryBuilder` (http://www.doctrine-project.org/). Doctrine version 2.1 and above.<br>
 
-- [`Kafoso\Questful\Model\Bridge\PdoMysql\PdoMysql5_5`](Kafoso/Questful/Model/Bridge/PdoMysql/PdoMysql5_5.php)<br>
+- [`Kafoso\Questful\Model\Bridge\PdoMysql\PdoMysql5_5`](src/Kafoso/Questful/Model/Bridge/PdoMysql/PdoMysql5_5.php)<br>
 For use with PDO MySQL versions 5.5 and above (http://php.net/manual/en/book.pdo.php).
 <br>
 
-- [`Kafoso\Questful\Model\Bridge\PdoSqlite\PdoSqlite3`](Kafoso/Questful/Model/Bridge/PdoSqlite\PdoSqlite3.php)<br>
+- [`Kafoso\Questful\Model\Bridge\PdoSqlite\PdoSqlite3`](src/Kafoso/Questful/Model/Bridge/PdoSqlite\PdoSqlite3.php)<br>
 For use with PDO Sqlite3 (http://php.net/manual/en/book.sqlite3.php).<br>
 
 
-You may implement your own bridges by extending [`Kafoso\Questful\Model\Bridge\AbstractBridge`](Kafoso/Questful/Model/Bridge/AbstractBridge.php).
+You may implement your own bridges by extending [`Kafoso\Questful\Model\Bridge\AbstractBridge`](src/Kafoso/Questful/Model/Bridge/AbstractBridge.php).
 
 # Errors and exceptions
 
 A few custom exceptions are utilized:
 
-- `Kafoso\Questful\Exception\BadRequestException`<br>
+- [`Kafoso\Questful\Exception\BadRequestException`](src/Kafoso/Questful/Exception/BadRequestException.php)<br>
 Thrown whenever the client input is malformed, out-of-bounds, or when attempting to target unmapped content. This exception goes hand-in-hand with the HTTP status code "**400 Bad Request**".
-- `Kafoso\Questful\Exception\InvalidArgumentException`<br>
+- [`Kafoso\Questful\Exception\InvalidArgumentException`](src/Kafoso/Questful/Exception/InvalidArgumentException.php)<br>
 Same usage as the native `InvalidArgumentException`.
-- `Kafoso\Questful\Exception\RuntimeException`<br>
+- [`Kafoso\Questful\Exception\RuntimeException`](src/Kafoso/Questful/Exception/RuntimeException.php)<br>
 Same usage as the native `RuntimeException`. Used for programmatic oversights in the implementation of this library.
-- `Kafoso\Questful\Exception\UnexpectedValueException`<br>
+- [`Kafoso\Questful\Exception\UnexpectedValueException`](src/Kafoso/Questful/Exception/UnexpectedValueException.php)<br>
 Same usage as the native `UnexpectedValueException`.
 
 <a name="exception_codes"></a>
