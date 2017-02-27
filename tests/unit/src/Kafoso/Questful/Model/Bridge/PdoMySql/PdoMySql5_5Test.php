@@ -148,11 +148,6 @@ class PdoMySql5_5Test extends \PHPUnit_Framework_TestCase
             [Allowable\Filter\AllowedInFilter::class, "foo=[\"BAR\"]", "(t.foo IN (:filter_0_0))", ["filter_0_0" => "BAR"]],
             [Allowable\Filter\AllowedInFilter::class, "foo=[\"BAR\"]/i", "(LOWER(t.foo) IN (:filter_0_0))", ["filter_0_0" => "bar"]],
             [Allowable\Filter\AllowedInFilter::class, "foo=[null,true,false,1,3.14,\"bar\"]", "(t.foo IN (:filter_0_0, :filter_0_1, :filter_0_2, :filter_0_3, :filter_0_4, :filter_0_5))", ["filter_0_0" => null, "filter_0_1" => true, "filter_0_2" => false, "filter_0_3" => 1, "filter_0_4" => 3.14, "filter_0_5" => "bar"]],
-
-            [Allowable\Filter\AllowedRegexpFilter::class, "foo=/bar/", "(t.foo REGEXP BINARY :filter_0)", ["filter_0" => "bar"]],
-            [Allowable\Filter\AllowedRegexpFilter::class, "foo=/BAR/i", "(LOWER(t.foo) REGEXP BINARY :filter_0)", ["filter_0" => "bar"]],
-            [Allowable\Filter\AllowedRegexpFilter::class, "foo!=/bar/", "(t.foo NOT REGEXP BINARY :filter_0)", ["filter_0" => "bar"]],
-            [Allowable\Filter\AllowedRegexpFilter::class, "foo!=/BAR/i", "(LOWER(t.foo) NOT REGEXP BINARY :filter_0)", ["filter_0" => "bar"]],
         ];
     }
 

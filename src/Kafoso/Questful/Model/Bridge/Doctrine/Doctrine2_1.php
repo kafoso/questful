@@ -9,14 +9,13 @@ use Kafoso\Questful\Model\QueryParser\Filter\InFilter;
 use Kafoso\Questful\Model\QueryParser\Filter\IntegerFilter;
 use Kafoso\Questful\Model\QueryParser\Filter\LikeFilter;
 use Kafoso\Questful\Model\QueryParser\Filter\NullFilter;
-use Kafoso\Questful\Model\QueryParser\Filter\RegexpFilter;
 use Kafoso\Questful\Model\QueryParser\Filter\ScalarFilterInterface;
 use Kafoso\Questful\Model\QueryParser\Filter\StringFilter;
 
 /**
  * Bridge for Doctrine versions 2.1 and above.
  * Producing DQL, comsumable by the Doctrine DBAL: http://www.doctrine-project.org/
- * Notice that BINARY (and REGEXP) are being utilized. Therefore, you need to provide logic for handling these
+ * Notice that BINARY is being utilized. Therefore, you need to provide logic for handling these
  * extensions. This is done by writing handlers yourself or simply by using
  * https://github.com/beberlei/DoctrineExtensions (recommended).
  */
@@ -113,15 +112,6 @@ class Doctrine2_1 extends AbstractDoctrine
                         }
                         $sql .= implode(", ", $sqlPlaceholders);
                         $sql .= ")";
-                    } elseif ($filter instanceof RegexpFilter) {
-                        $value = $filter->getValue();
-                        if (false == $filter->isCaseSensitive()) {
-                            $sql .= "{$not}REGEXP(LOWER({$column}), BINARY(:{$parameterName})) = 1";
-                            $value = mb_strtolower($value, $this->getEncoding());
-                        } else {
-                            $sql .= "{$not}REGEXP({$column}, BINARY(:{$parameterName})) = 1";
-                        }
-                        $this->parameters[$parameterName] = $value;
                     } else {
                         throw new RuntimeException(sprintf(
                             "Uncovered case for filter with type '%s' and expression: %s",

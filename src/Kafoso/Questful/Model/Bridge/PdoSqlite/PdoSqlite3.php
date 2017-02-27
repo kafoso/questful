@@ -8,13 +8,12 @@ use Kafoso\Questful\Model\QueryParser\Filter\InFilter;
 use Kafoso\Questful\Model\QueryParser\Filter\IntegerFilter;
 use Kafoso\Questful\Model\QueryParser\Filter\LikeFilter;
 use Kafoso\Questful\Model\QueryParser\Filter\NullFilter;
-use Kafoso\Questful\Model\QueryParser\Filter\RegexpFilter;
 use Kafoso\Questful\Model\QueryParser\Filter\ScalarFilterInterface;
 use Kafoso\Questful\Model\QueryParser\Filter\StringFilter;
 
 /**
  * A bridge for SQLite version 3.
- * Notice: Usage requires handling of BINARY and REGEXP.
+ * Notice: Usage requires handling of BINARY.
  */
 class PdoSqlite3 extends AbstractPdoSqlite
 {
@@ -109,15 +108,6 @@ class PdoSqlite3 extends AbstractPdoSqlite
                         }
                         $sql .= implode(", ", $sqlPlaceholders);
                         $sql .= ")";
-                    } elseif ($filter instanceof RegexpFilter) {
-                        $value = $filter->getValue();
-                        if (false == $filter->isCaseSensitive()) {
-                            $sql .= "LOWER({$column}) {$not}REGEXP :{$parameterName}";
-                            $value = mb_strtolower($value, $this->getEncoding());
-                        } else {
-                            $sql .= "{$column} {$not}REGEXP :{$parameterName}";
-                        }
-                        $this->parameters[$parameterName] = $value;
                     } else {
                         throw new RuntimeException(sprintf(
                             "Uncovered case for filter with type '%s' and expression: %s",

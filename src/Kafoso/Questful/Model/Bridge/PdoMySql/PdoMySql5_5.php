@@ -8,7 +8,6 @@ use Kafoso\Questful\Model\QueryParser\Filter\InFilter;
 use Kafoso\Questful\Model\QueryParser\Filter\IntegerFilter;
 use Kafoso\Questful\Model\QueryParser\Filter\LikeFilter;
 use Kafoso\Questful\Model\QueryParser\Filter\NullFilter;
-use Kafoso\Questful\Model\QueryParser\Filter\RegexpFilter;
 use Kafoso\Questful\Model\QueryParser\Filter\ScalarFilterInterface;
 use Kafoso\Questful\Model\QueryParser\Filter\StringFilter;
 
@@ -108,15 +107,6 @@ class PdoMySql5_5 extends AbstractPdoMySql
                         }
                         $sql .= implode(", ", $sqlPlaceholders);
                         $sql .= ")";
-                    } elseif ($filter instanceof RegexpFilter) {
-                        $value = $filter->getValue();
-                        if (false == $filter->isCaseSensitive()) {
-                            $sql .= "LOWER({$column}) {$not}REGEXP BINARY :{$parameterName}";
-                            $value = mb_strtolower($value, $this->getEncoding());
-                        } else {
-                            $sql .= "{$column} {$not}REGEXP BINARY :{$parameterName}";
-                        }
-                        $this->parameters[$parameterName] = $value;
                     } else {
                         throw new RuntimeException(sprintf(
                             "Uncovered case for filter with type '%s' and expression: %s",

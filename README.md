@@ -116,9 +116,8 @@ Questful handles the following:
   - `string`
 - Substrings (`LIKE`)
 - Arrays (`IN`)
-- Regular expressions
 
-**Notice:** Use `LIKE` and regular expressions with **extreme care**. These search types are tied to a certain risk of Denial of Service attacks<sup>[2](#footnotes-denial_of_service_attacks)</sup>. **Only allow** these search types if you are absolutely sure you know what your are doing. It may come in handy if providing a rich search feature to a restricted number of users (e.g. super users or administrators).
+**Notice:** Use `LIKE` with **extreme care**. This search type is tied to a certain risk of Denial of Service attacks<sup>[2](#footnotes-denial_of_service_attacks)</sup>. **Only allow** this search type if you are absolutely sure you know what your are doing. It may come in handy if providing a rich search feature to a restricted number of users (e.g. super users or administrators).
 
 As a security measure, all filters and sorting must be [mapped](#mapping_and_validation).
 
@@ -340,48 +339,6 @@ Modifiers are appended **after** the last square bracket, e.g. `["foo", "BAR"]/i
 - `?filter[]=foo=[3.14,-3.14]`
 - `?filter[]=foo=["foo","BAR"]/i`
 
-<a name="filtering-filter-filter_types-regular_expressions"></a>
-#### Regular expressions
-
-Use this feature with **caution** due to potential threats from Denial of Service attacks<sup>[2](#footnotes-denial_of_service_attacks)</sup>, mentioned previously.
-
-Supports [POSIX 1003.2](http://www.regextester.com/eregsyntax.html) regular expressions due to [restrictions in MySQL](https://dev.mysql.com/doc/refman/5.7/en/regexp.html).
-
-However, for ease-of-use, some basic PCRE patterns are allowed and will be translated from PCRE syntax to POSIX syntax:
-
-| PCRE syntax | POSIX syntax | Note |
-| --- | --- | --- |
-| `\d` | `[0-9]` | |
-| `\s` | `[:blank:]` | Spaces and tabs. |
-| `\w` | `[a-zA-Z0-9_]` | |
-
-##### Syntax
-
-```
-?filter[]=<key><operator>/<expression>/<modifiers>
-```
-
-, where:
-
-- `<key>` is a mapped key.
-- `<operator>` is an [accepted operator](#filtering-filter-filter_types-regular_expressions-accepted_operators).
-- `<expression>` is the regular expression, e.g. `\d+`.
-- `<modifiers>` is optional and takes only the modifier `i`, making the match case insensitive.
-
-<a name="filtering-filter-filter_types-regular_expressions-accepted_operators"></a>
-##### Accepted operators
-
-- `=`
-- `!=`
-
-##### Samples
-
-- `?filter[]foo=/^bar/`
-- `?filter[]foo=/^BAR/i`
-- `?filter[]foo=/\d+/` (which translates to `/[0-9]+/`)
-
-The two first filters above match the string "bar" (lowercase), due to the provision of the modifier `i`, making the second sample **case insensitive**.
-
 <a name="filtering-filter-operators"></a>
 ### Operators
 
@@ -397,7 +354,7 @@ Supported operators include:
 Some operators are not usable with certain filtering options, though:
 
 - [Booleans](#filtering-filter-filter_types-booleans) accept only `=`. I.e. `filter[]foo=iscool!=false` won't fly.
-- [Null](#filtering-filter-filter_types-null), [substrings `LIKE`](#filtering-filter-filter_types-substrings_like), [arrays `IN`](#filtering-filter-filter_types-arrays_in), and [regular expressions](#filtering-filter-filter_types-regular_expressions) accept only `=` and `!=`.
+- [Null](#filtering-filter-filter_types-null), [substrings `LIKE`](#filtering-filter-filter_types-substrings_like), and [arrays `IN`](#filtering-filter-filter_types-arrays_in) accept only `=` and `!=`.
 
 [Strings](#filtering-filter-filter_types-strings) do accept `>`, `>=`, `<`, `<=`, retaining the need for making comparison against certain values. E.g. dates.
 
@@ -646,15 +603,14 @@ The readily available bridges are:
 
 - [`Kafoso\Questful\Model\Bridge\Doctrine\Doctrine2_1`](src/Kafoso/Questful/Model/Bridge/Doctrine/Doctrine2_1.php)<br>
 For use with `Doctrine\ORM\QueryBuilder` (http://www.doctrine-project.org/). Doctrine version 2.1 and above.<br>
-Requires handlers for `REGEXP` and `BINARY`. You may implement these yourself or simply use https://github.com/beberlei/DoctrineExtensions.<br>
+Requires handlers for `BINARY`. You may implement these yourself or simply use https://github.com/beberlei/DoctrineExtensions.<br>
 
 - [`Kafoso\Questful\Model\Bridge\PdoMysql\PdoMysql5_5`](src/Kafoso/Questful/Model/Bridge/PdoMysql/PdoMysql5_5.php)<br>
 For use with PDO MySQL versions 5.5 and above (http://php.net/manual/en/book.pdo.php).<br>
-Requires `REGEXP`.<br>
 
 - [`Kafoso\Questful\Model\Bridge\PdoSqlite\PdoSqlite3`](src/Kafoso/Questful/Model/Bridge/PdoSqlite\PdoSqlite3.php)<br>
 For use with PDO Sqlite3 (http://php.net/manual/en/book.sqlite3.php).<br>
-Requires handlers for `REGEXP` and `XOR`. You may implement these yourself or simply use `Kafoso\Questful\Helper\Sqlite3Helper`. Both are functions, rather than operators, and are used as `REGEXP(<expression>, <value>)` and `XOR(0, 1)`.<br>
+Requires handlers for `XOR`. You may implement this yourself or simply use `Kafoso\Questful\Helper\Sqlite3Helper`. Notice `XOR` is a function, rather than an operator, and is as `XOR(0, 1)`.<br>
 
 
 You may implement your own bridges by extending [`Kafoso\Questful\Model\Bridge\AbstractBridge`](src/Kafoso/Questful/Model/Bridge/AbstractBridge.php).
@@ -716,15 +672,13 @@ An example using an actual database (SQLite3). Requires the sqlite3 extension en
 - <a name="examples-009-in-array"></a>**In array example**<br>
 [examples/009-in-array.php](examples/009-in-array.php)<br>
 An example using array (`IN`) to look up items in an SQLite3 database. Requires the sqlite3 extension enabled in PHP.
-- <a name="examples-010-regular-expressions"></a>**Regular expression example**<br>
-[examples/010-regular-expressions.php](examples/010-regular-expressions.php)<br>
-An example using regular expressions on an SQLite3 database. Requires the sqlite3 extension enabled in PHP.
 
 # Ideas and plans
 
 - Expand number of ready-for-use bridges.
 - Allow customization of HTTP parameter keys. I.e. make them changeable and not the static values of `?filter`, `?filterExpression`, and `?sort`.
 - Allow common `AbstractAllowedFilter` configurations, where operators and validatores are stored and gets applied automatically. Useful if one wants to always restrict string length to - say - maximum 512 characters.
+- (Re)introduce support for regular expressions, e.g. `?filter[]=foo=/^foo\d+$/i`. This comes with a myriad of security concerns, plus programmatic challenges such as differences between [POSIX 1003.2](http://www.regextester.com/eregsyntax.html) - as [used by MySQL](https://dev.mysql.com/doc/refman/5.7/en/regexp.html) - and [PCRE](http://php.net/manual/en/intro.pcre.php).
 
 # Footnotes
 

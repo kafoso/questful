@@ -14,7 +14,6 @@ use Kafoso\Questful\Model\QueryParser\Filter\InFilter;
 use Kafoso\Questful\Model\QueryParser\Filter\IntegerFilter;
 use Kafoso\Questful\Model\QueryParser\Filter\LikeFilter;
 use Kafoso\Questful\Model\QueryParser\Filter\NullFilter;
-use Kafoso\Questful\Model\QueryParser\Filter\RegexpFilter;
 use Kafoso\Questful\Model\QueryParser\Filter\StringFilter;
 
 class FilterFactory
@@ -103,8 +102,6 @@ class FilterFactory
                     $filters[$index] = new InFilter($expression, $key, $value, $operator);
                 } elseif (preg_match(LikeFilter::MATCH_PATTERN, $value, $match)) {
                     $filters[$index] = new LikeFilter($expression, $key, strval($value), $operator);
-                } elseif (preg_match(RegexpFilter::MATCH_PATTERN, $value, $match)) {
-                    $filters[$index] = new RegexpFilter($expression, $key, strval($value), $operator);
                 } else {
                     throw new BadRequestException(
                         $this->_getExceptionMessageUnsupported($value, $index, $expression),

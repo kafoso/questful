@@ -212,28 +212,4 @@ class FilterFactoryTest extends \PHPUnit_Framework_TestCase
             ["<=", "'filter[0]=foo<=%\"bar\"%' is malformed: Expected operator to be one of [\"=\",\"!=\"]. Found: (string) <="],
         ];
     }
-
-    /**
-     * @dataProvider    dataProvider_testCreateFromQueryThrowsExceptionWhenRegexpHasWrongOperators
-     * @expectedException Kafoso\Questful\Exception\BadRequestException
-     * @expectedExceptionMessageRegExp /^'filter\[0\]=foo.+\/bar\/' is malformed\: Expected operator to be one of \["\=","\!\="\]\. Found: \(string\) .+$/
-     */
-    public function testCreateFromQueryThrowsExceptionWhenRegexpHasWrongOperators($operator, $expectedExceptionMessage)
-    {
-        $query = [
-            "foo{$operator}/bar/"
-        ];
-        $filterFactory = new FilterFactory;
-        $filterFactory->createFromQuery($query);
-    }
-
-    public function dataProvider_testCreateFromQueryThrowsExceptionWhenRegexpHasWrongOperators()
-    {
-        return [
-            [">", "'filter[0]=foo>/bar/' is malformed: Expected operator to be one of [\"=\",\"!=\"]. Found: (string) >"],
-            [">=", "'filter[0]=foo>=/bar/' is malformed: Expected operator to be one of [\"=\",\"!=\"]. Found: (string) >="],
-            ["<", "'filter[0]=foo</bar/' is malformed: Expected operator to be one of [\"=\",\"!=\"]. Found: (string) <"],
-            ["<=", "'filter[0]=foo<=/bar/' is malformed: Expected operator to be one of [\"=\",\"!=\"]. Found: (string) <="],
-        ];
-    }
 }
