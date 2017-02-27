@@ -230,7 +230,7 @@ The terminology `LIKE` is borrowed from SQL and it works the same: finds substri
 
 Same rule applies as for [strings](#filtering-filter-filter_types-strings), i.e. that the value part must evaluate to PHP syntax and that **only double quotes are supported**.
 
-The syntax is a different from SQL, though. While the percentage symbol `%` is used both here and in SQL, and may be used as a wildcard on the lefthand side, righthand side, or both at once, the symbol goes outside the quotes. I.e. `%"bar"%`, and **not** `"%bar%"`, as the syntax would be in SQL.
+The syntax is a little different from SQL, though. While the percentage symbol `%` is used in both Questful and SQL, and may be used as a wildcard on the lefthand side, righthand side, or both at once, the symbol goes outside the quotes in Questful. I.e. `%"bar"%`, and **not** `"%bar%"`, as the syntax would be in SQL.
 
 > **But why isn't the syntax the same?**
 
