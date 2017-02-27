@@ -447,7 +447,7 @@ By enforcing precedence, different storage units should return identical results
 
 | Input expression | Resulting normalized expression |
 | --- | --- |
-| `0or1and2xor3` | `(0and1)or(2xor3)` |
+| `0and1or2xor3` | `(0and1)or(2xor3)` |
 | `0or1and(2or3)` | `0or(1and(2or3))` |
 | `0or(1and2)or3` | `(0or(1and2))or3` |
 
