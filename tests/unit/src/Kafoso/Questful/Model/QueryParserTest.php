@@ -16,7 +16,13 @@ class QueryParserTest extends \PHPUnit_Framework_TestCase
     {
         $query = ["foo" => "bar"];
         $queryParser = new QueryParser($query);
-        $this->assertEquals($query, $queryParser->getQuery());
+        $this->assertNull($queryParser->getFilterExpression());
+        $this->assertSame([], $queryParser->getFilters());
+        $this->assertSame([], $queryParser->getFiltersByKey("foo"));
+        $this->assertNull($queryParser->getFirstFilterByKey("foo"));
+        $this->assertSame([], $queryParser->getSorts());
+        $this->assertSame($query, $queryParser->getQuery());
+        $this->assertFalse($queryParser->hasFilter("foo"));
     }
 
     public function testParseWorksWithNoMatchingCredentials()
@@ -91,5 +97,71 @@ class QueryParserTest extends \PHPUnit_Framework_TestCase
         ];
         $queryParser = new QueryParser($query);
         $queryParser->parse();
+    }
+
+    public function testGetFiltersByKeyWorks()
+    {
+        $query = [
+            "filter" => [
+                "foo=\"bar\"",
+                "foo!=\"Bar\"",
+            ],
+        ];
+        $queryParser = new QueryParser($query);
+        $queryParser->parse();
+        $this->assertCount(2, $queryParser->getFiltersByKey("foo"));
+    }
+
+    public function testGetFiltersByKeyReturnsEmptyArrayWhenNoFilterIsFound()
+    {
+        $queryParser = new QueryParser([]);
+        $queryParser->parse();
+        $this->assertSame([], $queryParser->getFiltersByKey("foo"));
+    }
+
+    /**
+     * @expectedException Kafoso\Questful\Exception\InvalidArgumentException
+     * @expectedExceptionMessage Expects argument '$key' to be a string. Found: (integer) 42
+     */
+    public function testGetFiltersByKeyThrowsExceptionWhenKeyArgumentIsInvalid()
+    {
+        $queryParser = new QueryParser([]);
+        $queryParser->parse();
+        $queryParser->getFiltersByKey(42);
+    }
+
+    public function testGetFirstFilterByKeyWorks()
+    {
+        $query = [
+            "filter" => [
+                "foo=\"bar\"",
+                "foo!=\"Bar\"",
+            ],
+        ];
+        $queryParser = new QueryParser($query);
+        $queryParser->parse();
+        $filter = $queryParser->getFirstFilterByKey("foo");
+        $this->assertInstanceOf(AbstractFilter::class, $filter);
+        $this->assertSame("=", $filter->getOperator());
+        $this->assertSame("bar", $filter->getValue());
+    }
+
+    public function testGetFirstFilterByKeyReturnsNullWhenNoFilterIsFound()
+    {
+        $queryParser = new QueryParser([]);
+        $queryParser->parse();
+        $filter = $queryParser->getFirstFilterByKey("foo");
+        $this->assertNull($filter);
+    }
+
+    /**
+     * @expectedException Kafoso\Questful\Exception\InvalidArgumentException
+     * @expectedExceptionMessage Expects argument '$key' to be a string. Found: (integer) 42
+     */
+    public function testGetFirstFilterByKeyThrowsExceptionWhenKeyArgumentIsInvalid()
+    {
+        $queryParser = new QueryParser([]);
+        $queryParser->parse();
+        $queryParser->getFirstFilterByKey(42);
     }
 }

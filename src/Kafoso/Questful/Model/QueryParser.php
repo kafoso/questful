@@ -3,6 +3,7 @@ namespace Kafoso\Questful\Model;
 
 use Kafoso\Questful\Exception\BadRequestException;
 use Kafoso\Questful\Exception\FormattingHelper;
+use Kafoso\Questful\Exception\InvalidArgumentException;
 use Kafoso\Questful\Factory\Model\QueryParser\Filter\FilterFactory;
 use Kafoso\Questful\Factory\Model\QueryParser\FilterExpression\FilterExpressionFactory;
 use Kafoso\Questful\Factory\Model\QueryParser\Sort\SortFactory;
@@ -111,6 +112,26 @@ class QueryParser
     }
 
     /**
+     * @param $index integer
+     * @throws \Kafoso\Questful\Exception\InvalidArgumentException
+     * @return ?object \Kafoso\Questful\Model\QueryParser\Filter\AbstractFilter
+     */
+    public function getFilter($index)
+    {
+        if (false == is_int($index)) {
+            throw new InvalidArgumentException(sprintf(
+                "Expects argument '%s' to be an integer. Found: %s",
+                '$index',
+                FormattingHelper::found($index)
+            ));
+        }
+        if (array_key_exists($index, $this->getFilters())) {
+            return $this->getFilters()[$index];
+        }
+        return null;
+    }
+
+    /**
      * @return string
      */
     public function getFilterExpression()
@@ -119,26 +140,49 @@ class QueryParser
     }
 
     /**
-     * @return ?object \Kafoso\Questful\Model\QueryParser\Filter\AbstractFilter
-     */
-    public function getFilter($key)
-    {
-        if ($this->getFilters()) {
-            foreach ($this->getFilters() as $filter) {
-                if ($filter->getKey() == $key) {
-                    return $filter;
-                }
-            }
-        }
-        return null;
-    }
-
-    /**
      * @return array (\Kafoso\Questful\Model\QueryParser\Filter\AbstractFilter[])
      */
     public function getFilters()
     {
         return $this->filters;
+    }
+
+    /**
+     * @param $key string
+     * @throws \Kafoso\Questful\Exception\InvalidArgumentException
+     * @return array (\Kafoso\Questful\Model\QueryParser\Filter\AbstractFilter[])
+     */
+    public function getFiltersByKey($key)
+    {
+        if (false == is_string($key)) {
+            throw new InvalidArgumentException(sprintf(
+                "Expects argument '%s' to be a string. Found: %s",
+                '$key',
+                FormattingHelper::found($key)
+            ));
+        }
+        $filters = [];
+        foreach ($this->getFilters() as $index => $filter) {
+            if ($key == $filter->getKey()) {
+                $filters[$index] = $filter;
+            }
+        }
+        return $filters;
+    }
+
+    /**
+     * @param $key string
+     * @throws \Kafoso\Questful\Exception\InvalidArgumentException
+     * @return ?object \Kafoso\Questful\Model\QueryParser\Filter\AbstractFilter
+     */
+    public function getFirstFilterByKey($key)
+    {
+        $filters = $this->getFiltersByKey($key);
+        if ($filters) {
+            reset($filters);
+            return current($filters);
+        }
+        return null;
     }
 
     /**
