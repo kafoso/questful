@@ -1,5 +1,5 @@
 {
-    "name": "kasper.soefren/questful",
+    "name": "kafoso/questful",
     "description": "An interfacing tool providing a sensible link between HTTP query contents and a RESTful API. The name \"Questful\" is a word play and concatenation of the words \"Query\" (from HTTP) and \"RESTful\".",
     "type": "library",
     "license": "MIT",
