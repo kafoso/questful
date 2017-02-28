@@ -77,10 +77,10 @@ class PdoSqlite3 extends AbstractPdoSqlite
                     } elseif ($filter instanceof LikeFilter) {
                         $value = $filter->getValue();
                         if (false == $filter->isCaseSensitive()) {
-                            $sql .= "LOWER({$column}) {$not}LIKE :{$parameterName} ESCAPE '\'";
+                            $sql .= "LOWER({$column}) {$not}LIKE :{$parameterName} ESCAPE '\\'";
                             $value = mb_strtolower($value, $this->getEncoding());
                         } else {
-                            $sql .= "{$column} {$not}LIKE :{$parameterName} ESCAPE '\'";
+                            $sql .= "{$column} {$not}LIKE :{$parameterName} ESCAPE '\\'";
                         }
                         $value = addcslashes($value, "%_\\");
                         if ($filter->hasWildcardLeft()) {

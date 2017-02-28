@@ -81,10 +81,10 @@ class Doctrine2_1 extends AbstractDoctrine
                     } elseif ($filter instanceof LikeFilter) {
                         $value = $filter->getValue();
                         if (false == $filter->isCaseSensitive()) {
-                            $sql .= "LOWER({$column}) {$not}LIKE BINARY(:{$parameterName}) ESCAPE '\'";
+                            $sql .= "LOWER({$column}) {$not}LIKE BINARY(:{$parameterName}) ESCAPE '\\'";
                             $value = mb_strtolower($value, $this->getEncoding());
                         } else {
-                            $sql .= "{$column} {$not}LIKE BINARY(:{$parameterName}) ESCAPE '\'";
+                            $sql .= "{$column} {$not}LIKE BINARY(:{$parameterName}) ESCAPE '\\'";
                         }
                         $value = addcslashes($value, "%_\\");
                         if ($filter->hasWildcardLeft()) {
