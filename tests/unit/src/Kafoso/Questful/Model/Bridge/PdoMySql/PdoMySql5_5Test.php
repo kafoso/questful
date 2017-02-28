@@ -73,7 +73,7 @@ class PdoMySql5_5Test extends \PHPUnit_Framework_TestCase
             ->validate();
         $pdoMySql = new PdoMySql5_5($mapping);
         $pdoMySql->generate();
-        $this->assertSame("(t.foo LIKE BINARY :filter_0 ESCAPE '\\')", $pdoMySql->getWhere());
+        $this->assertSame("(t.foo LIKE BINARY :filter_0 ESCAPE '\\\\')", $pdoMySql->getWhere());
         $this->assertSame(["filter_0" => "%\\_\\\\\\%%"], $pdoMySql->getParameters());
     }
 
@@ -136,14 +136,14 @@ class PdoMySql5_5Test extends \PHPUnit_Framework_TestCase
             [Allowable\Filter\AllowedStringFilter::class, "foo<=\"bar\"", "(t.foo <= BINARY :filter_0)", ["filter_0" => "bar"]],
             [Allowable\Filter\AllowedStringFilter::class, "foo<=\"BAR\"/i", "(LOWER(t.foo) <= BINARY :filter_0)", ["filter_0" => "bar"]],
 
-            [Allowable\Filter\AllowedLikeFilter::class, "foo=%\"bar\"%", "(t.foo LIKE BINARY :filter_0 ESCAPE '\\')", ["filter_0" => "%bar%"]],
-            [Allowable\Filter\AllowedLikeFilter::class, "foo=%\"BAR\"%/i", "(LOWER(t.foo) LIKE BINARY :filter_0 ESCAPE '\\')", ["filter_0" => "%bar%"]],
-            [Allowable\Filter\AllowedLikeFilter::class, "foo!=%\"bar\"%", "(t.foo NOT LIKE BINARY :filter_0 ESCAPE '\\')", ["filter_0" => "%bar%"]],
-            [Allowable\Filter\AllowedLikeFilter::class, "foo!=%\"BAR\"%/i", "(LOWER(t.foo) NOT LIKE BINARY :filter_0 ESCAPE '\\')", ["filter_0" => "%bar%"]],
-            [Allowable\Filter\AllowedLikeFilter::class, "foo=%\"bar\"", "(t.foo LIKE BINARY :filter_0 ESCAPE '\\')", ["filter_0" => "%bar"]],
-            [Allowable\Filter\AllowedLikeFilter::class, "foo=%\"BAR\"/i", "(LOWER(t.foo) LIKE BINARY :filter_0 ESCAPE '\\')", ["filter_0" => "%bar"]],
-            [Allowable\Filter\AllowedLikeFilter::class, "foo!=%\"bar\"", "(t.foo NOT LIKE BINARY :filter_0 ESCAPE '\\')", ["filter_0" => "%bar"]],
-            [Allowable\Filter\AllowedLikeFilter::class, "foo!=%\"BAR\"/i", "(LOWER(t.foo) NOT LIKE BINARY :filter_0 ESCAPE '\\')", ["filter_0" => "%bar"]],
+            [Allowable\Filter\AllowedLikeFilter::class, "foo=%\"bar\"%", "(t.foo LIKE BINARY :filter_0 ESCAPE '\\\\')", ["filter_0" => "%bar%"]],
+            [Allowable\Filter\AllowedLikeFilter::class, "foo=%\"BAR\"%/i", "(LOWER(t.foo) LIKE BINARY :filter_0 ESCAPE '\\\\')", ["filter_0" => "%bar%"]],
+            [Allowable\Filter\AllowedLikeFilter::class, "foo!=%\"bar\"%", "(t.foo NOT LIKE BINARY :filter_0 ESCAPE '\\\\')", ["filter_0" => "%bar%"]],
+            [Allowable\Filter\AllowedLikeFilter::class, "foo!=%\"BAR\"%/i", "(LOWER(t.foo) NOT LIKE BINARY :filter_0 ESCAPE '\\\\')", ["filter_0" => "%bar%"]],
+            [Allowable\Filter\AllowedLikeFilter::class, "foo=%\"bar\"", "(t.foo LIKE BINARY :filter_0 ESCAPE '\\\\')", ["filter_0" => "%bar"]],
+            [Allowable\Filter\AllowedLikeFilter::class, "foo=%\"BAR\"/i", "(LOWER(t.foo) LIKE BINARY :filter_0 ESCAPE '\\\\')", ["filter_0" => "%bar"]],
+            [Allowable\Filter\AllowedLikeFilter::class, "foo!=%\"bar\"", "(t.foo NOT LIKE BINARY :filter_0 ESCAPE '\\\\')", ["filter_0" => "%bar"]],
+            [Allowable\Filter\AllowedLikeFilter::class, "foo!=%\"BAR\"/i", "(LOWER(t.foo) NOT LIKE BINARY :filter_0 ESCAPE '\\\\')", ["filter_0" => "%bar"]],
 
             [Allowable\Filter\AllowedInFilter::class, "foo=[\"BAR\"]", "(t.foo = BINARY :filter_0_0)", ["filter_0_0" => "BAR"]],
             [Allowable\Filter\AllowedInFilter::class, "foo=[\"BAR\", \"baz\"]/i", "(LOWER(t.foo) IN (BINARY :filter_0_0, BINARY :filter_0_1))", ["filter_0_0" => "bar", "filter_0_1" => "baz"]],
