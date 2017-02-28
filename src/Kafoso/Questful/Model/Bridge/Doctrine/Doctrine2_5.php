@@ -13,13 +13,13 @@ use Kafoso\Questful\Model\QueryParser\Filter\ScalarFilterInterface;
 use Kafoso\Questful\Model\QueryParser\Filter\StringFilter;
 
 /**
- * Bridge for Doctrine versions 2.1 and above.
+ * Bridge for Doctrine versions 2.5 and above.
  * Producing DQL, comsumable by the Doctrine DBAL: http://www.doctrine-project.org/
  * Notice that BINARY is being utilized. Therefore, you need to provide logic for handling these
  * extensions. This is done by writing handlers yourself or simply by using
  * https://github.com/beberlei/DoctrineExtensions (recommended).
  */
-class Doctrine2_1 extends AbstractDoctrine
+class Doctrine2_5 extends AbstractDoctrine
 {
     public function generate()
     {

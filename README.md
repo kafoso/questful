@@ -77,7 +77,7 @@ try {
 ## Recommended
 
 - MySQL 5.5 and above.
-- Doctrine 2.1 and above.
+- Doctrine 2.5 and above.
 - Sqlite3.
 
 <a name="filtering"></a>
@@ -619,8 +619,8 @@ You are free to add additional conditions and sorting in the SQL sentence. Notic
 
 The readily available bridges are:
 
-- [`Kafoso\Questful\Model\Bridge\Doctrine\Doctrine2_1`](src/Kafoso/Questful/Model/Bridge/Doctrine/Doctrine2_1.php)<br>
-For use with `Doctrine\ORM\QueryBuilder` (http://www.doctrine-project.org/). Doctrine version 2.1 and above.<br>
+- [`Kafoso\Questful\Model\Bridge\Doctrine\Doctrine2_5`](src/Kafoso/Questful/Model/Bridge/Doctrine/Doctrine2_5.php)<br>
+For use with `Doctrine\ORM\QueryBuilder` (http://www.doctrine-project.org/). Doctrine version 2.5 and above.<br>
 Requires handlers for `BINARY`. You may implement these yourself or simply use https://github.com/beberlei/DoctrineExtensions.<br>
 
 - [`Kafoso\Questful\Model\Bridge\PdoMysql\PdoMysql5_5`](src/Kafoso/Questful/Model/Bridge/PdoMysql/PdoMysql5_5.php)<br>

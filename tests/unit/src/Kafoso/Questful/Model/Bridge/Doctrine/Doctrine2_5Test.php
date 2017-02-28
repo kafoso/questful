@@ -2,7 +2,7 @@
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\QueryBuilder;
 use Kafoso\Questful\Factory\Model\QueryParser\QueryParserFactory;
-use Kafoso\Questful\Model\Bridge\Doctrine\Doctrine2_1;
+use Kafoso\Questful\Model\Bridge\Doctrine\Doctrine2_5;
 use Kafoso\Questful\Model\Mapping;
 use Kafoso\Questful\Model\Mapping\Allowable;
 use Kafoso\Questful\Model\QueryParser;
@@ -14,7 +14,7 @@ use Kafoso\Questful\Model\QueryParser\Filter\LikeFilter;
 use Kafoso\Questful\Model\QueryParser\Filter\NullFilter;
 use Kafoso\Questful\Model\QueryParser\Filter\StringFilter;
 
-class Doctrine2_1Test extends \PHPUnit_Framework_TestCase
+class Doctrine2_5Test extends \PHPUnit_Framework_TestCase
 {
     public function testConstructorWorks()
     {
@@ -22,8 +22,8 @@ class Doctrine2_1Test extends \PHPUnit_Framework_TestCase
             ->getMockBuilder(Mapping::class)
             ->disableOriginalConstructor()
             ->getMock();
-        $doctrine = new Doctrine2_1($mapping);
-        $this->assertInstanceOf(Doctrine2_1::class, $doctrine);
+        $doctrine = new Doctrine2_5($mapping);
+        $this->assertInstanceOf(Doctrine2_5::class, $doctrine);
     }
 
     public function testBasicGetters()
@@ -32,7 +32,7 @@ class Doctrine2_1Test extends \PHPUnit_Framework_TestCase
             ->getMockBuilder(Mapping::class)
             ->disableOriginalConstructor()
             ->getMock();
-        $doctrine = new Doctrine2_1($mapping);
+        $doctrine = new Doctrine2_5($mapping);
         $this->assertNull($doctrine->getWhere());
         $this->assertSame([], $doctrine->getOrderBy());
         $this->assertSame([], $doctrine->getParameters());
@@ -50,7 +50,7 @@ class Doctrine2_1Test extends \PHPUnit_Framework_TestCase
             ->allow(new Allowable\Filter\AllowedStringFilter("foo"))
             ->allow(new Allowable\AllowedSort("foo"))
             ->validate();
-        $doctrine = new Doctrine2_1($mapping);
+        $doctrine = new Doctrine2_5($mapping);
         $doctrine->generate();
         $this->assertSame("(t.foo > BINARY(:filter_0))", $doctrine->getWhere());
         $this->assertSame(["filter_0" => "bar"], $doctrine->getParameters());
@@ -63,7 +63,7 @@ class Doctrine2_1Test extends \PHPUnit_Framework_TestCase
         $queryParser = $queryParserFactory->createFromUri('?filter%5B%5D=foo%3E"bar"&sort%5B%5D=foo');
         $queryParser->parse();
         $mapping = new Mapping($queryParser);
-        $doctrine = new Doctrine2_1($mapping);
+        $doctrine = new Doctrine2_5($mapping);
         $doctrine->generate();
         $this->assertNull($doctrine->getWhere());
         $this->assertSame([], $doctrine->getParameters());
@@ -80,7 +80,7 @@ class Doctrine2_1Test extends \PHPUnit_Framework_TestCase
             ->relate("foo", "t.foo")
             ->allow(new Allowable\Filter\AllowedLikeFilter("foo"))
             ->validate();
-        $doctrine = new Doctrine2_1($mapping);
+        $doctrine = new Doctrine2_5($mapping);
         $doctrine->generate();
         $this->assertSame("(t.foo LIKE BINARY(:filter_0) ESCAPE '\\')", $doctrine->getWhere());
         $this->assertSame(["filter_0" => "%\\_\\\\\\%%"], $doctrine->getParameters());
@@ -103,7 +103,7 @@ class Doctrine2_1Test extends \PHPUnit_Framework_TestCase
             ->relate("t.foo", "t.foo")
             ->allow(new Allowable\Filter\AllowedInFilter("t.foo"))
             ->validate();
-        $doctrine = new Doctrine2_1($mapping);
+        $doctrine = new Doctrine2_5($mapping);
         $doctrine->generate();
         $this->assertSame($expectedWhere, $doctrine->getWhere());
         $this->assertSame($expectedParameters, $doctrine->getParameters());
@@ -135,7 +135,7 @@ class Doctrine2_1Test extends \PHPUnit_Framework_TestCase
             ->relate("t.foo", "t.foo")
             ->allow(new Allowable\Filter\AllowedInFilter("t.foo"))
             ->validate();
-        $doctrine = new Doctrine2_1($mapping);
+        $doctrine = new Doctrine2_5($mapping);
         $doctrine->generate();
         $this->assertSame($expectedWhere, $doctrine->getWhere());
         $this->assertSame($expectedParameters, $doctrine->getParameters());
@@ -162,7 +162,7 @@ class Doctrine2_1Test extends \PHPUnit_Framework_TestCase
             ->relate("foo", "t.foo")
             ->allow(new $classNamespace("foo"))
             ->validate();
-        $doctrine = new Doctrine2_1($mapping);
+        $doctrine = new Doctrine2_5($mapping);
         $doctrine->generate();
         $this->assertSame($expectedWhere, $doctrine->getWhere());
         $this->assertSame($expectedParameters, $doctrine->getParameters());
@@ -231,7 +231,7 @@ class Doctrine2_1Test extends \PHPUnit_Framework_TestCase
             ->allow(new Allowable\AllowedSort("foo"))
             ->allow(new Allowable\AllowedSort("bar"))
             ->validate();
-        $doctrine = new Doctrine2_1($mapping);
+        $doctrine = new Doctrine2_5($mapping);
         $doctrine->generate();
         $this->assertSame([["t.foo", "ASC"], ["t.bar", "DESC"]], $doctrine->getOrderBy());
     }
@@ -249,7 +249,7 @@ class Doctrine2_1Test extends \PHPUnit_Framework_TestCase
             ->allow(new Allowable\Filter\AllowedStringFilter("baz"))
             ->allow(new Allowable\AllowedFilterExpression("(1or0)"))
             ->validate();
-        $doctrine = new Doctrine2_1($mapping);
+        $doctrine = new Doctrine2_5($mapping);
         $doctrine->generate();
         $this->assertSame("(t.baz = BINARY(:filter_1) OR t.foo = BINARY(:filter_0))", $doctrine->getWhere());
         $this->assertSame(["filter_0" => "bar", "filter_1" => "bim"], $doctrine->getParameters());
@@ -267,7 +267,7 @@ class Doctrine2_1Test extends \PHPUnit_Framework_TestCase
             ->allow(new Allowable\Filter\AllowedStringFilter("foo"))
             ->allow(new Allowable\AllowedFilterExpression("(0or1)"))
             ->validate();
-        $doctrine = new Doctrine2_1($mapping);
+        $doctrine = new Doctrine2_5($mapping);
         $doctrine->generate();
         $this->assertSame("(t.foo = BINARY(:filter_0) OR t.foo = :filter_1)", $doctrine->getWhere());
         $this->assertSame(["filter_0" => "bar", "filter_1" => 1], $doctrine->getParameters());
@@ -284,7 +284,7 @@ class Doctrine2_1Test extends \PHPUnit_Framework_TestCase
             ->allow(new Allowable\Filter\AllowedIntegerFilter("foo"))
             ->allow(new Allowable\AllowedFilterExpression("(0xor1)"))
             ->validate();
-        $doctrine = new Doctrine2_1($mapping);
+        $doctrine = new Doctrine2_5($mapping);
         $doctrine->generate();
         $this->assertSame("(t.foo = :filter_0 XOR t.foo = :filter_1)", $doctrine->getWhere());
         $this->assertSame(["filter_0" => 1, "filter_1" => 2], $doctrine->getParameters());
@@ -302,7 +302,7 @@ class Doctrine2_1Test extends \PHPUnit_Framework_TestCase
             ->allow(new Allowable\Filter\AllowedStringFilter("foo"))
             ->allow(new Allowable\AllowedFilterExpression("(0or1)"))
             ->validate();
-        $doctrine = new Doctrine2_1($mapping);
+        $doctrine = new Doctrine2_5($mapping);
         $queryBuilder = $this
             ->getMockBuilder(QueryBuilder::class)
             ->disableOriginalConstructor()
@@ -323,7 +323,7 @@ class Doctrine2_1Test extends \PHPUnit_Framework_TestCase
             ->allow(new Allowable\Filter\AllowedStringFilter("foo"))
             ->allow(new Allowable\Filter\AllowedIntegerFilter("baz"))
             ->validate();
-        $doctrine = new Doctrine2_1($mapping);
+        $doctrine = new Doctrine2_5($mapping);
         $doctrine->generate();
         $this->assertSame("(t.foo = BINARY(:filter_42) AND t.baz = :filter_99)", $doctrine->getWhere());
         $this->assertSame(["filter_42" => "bar", "filter_99" => 1], $doctrine->getParameters());
