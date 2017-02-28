@@ -95,6 +95,7 @@ class PdoSqlite3 extends AbstractPdoSqlite
                         $orParameters = [];
                         $value = $filter->getValue();
                         $value = array_values($value);
+                        $value = $this->arrayUniqueStrict(array_values($value));
                         foreach ($value as $subIndex => $item) {
                             $parameterNameItem = "{$parameterName}_{$subIndex}";
                             if (is_null($item)) {
@@ -104,10 +105,10 @@ class PdoSqlite3 extends AbstractPdoSqlite
                                     if (false == $filter->isCaseSensitive()) {
                                         $item = mb_strtolower($item, $this->getEncoding());
                                     }
-                                    $inParameters[$parameterNameItem] = ":{$parameterNameItem}";
-                                } else {
-                                    $inParameters[$parameterNameItem] = ":{$parameterNameItem}";
+                                } elseif (is_bool($item)) {
+                                    $item = ($item ? 1 : 0);
                                 }
+                                $inParameters[$parameterNameItem] = ":{$parameterNameItem}";
                             }
                             $this->parameters[$parameterNameItem] = $item;
                         }
@@ -137,6 +138,7 @@ class PdoSqlite3 extends AbstractPdoSqlite
                                     }
                                 } elseif (is_null($item)) {
                                     $orSql[] = "{$column} IS NULL";
+                                    unset($this->parameters[$parameterNameItem]);
                                 } elseif (is_int($item) || is_float($item)) {
                                     $orSql[] = "{$column} = {$partialSql}";
                                 }

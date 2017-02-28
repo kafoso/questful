@@ -99,6 +99,7 @@ class Doctrine2_1 extends AbstractDoctrine
                         $orParameters = [];
                         $value = $filter->getValue();
                         $value = array_values($value);
+                        $value = $this->arrayUniqueStrict(array_values($value));
                         foreach ($value as $subIndex => $item) {
                             $parameterNameItem = "{$parameterName}_{$subIndex}";
                             if (is_null($item)) {
@@ -141,6 +142,7 @@ class Doctrine2_1 extends AbstractDoctrine
                                     }
                                 } elseif (is_null($item)) {
                                     $orSql[] = "{$column} IS NULL";
+                                    unset($this->parameters[$parameterNameItem]);
                                 } elseif (is_int($item) || is_float($item)) {
                                     $orSql[] = "{$column} = {$partialSql}";
                                 }

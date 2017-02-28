@@ -85,6 +85,69 @@ class PdoSqlite3Test extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @dataProvider dataProvider_testGenerateRemovesStrictDuplicatesInLikeSearch
+     */
+    public function testGenerateRemovesStrictDuplicatesInArraySearch($expectedWhere, $expectedParameters, $innerArrayValue)
+    {
+        $queryParserFactory = new QueryParserFactory;
+        $queryParser = new QueryParser([
+            "filter" => [
+                "t.foo=[{$innerArrayValue}]"
+            ]
+        ]);
+        $queryParser->parse();
+        $mapping = new Mapping($queryParser);
+        $mapping
+            ->relate("t.foo", "t.foo")
+            ->allow(new Allowable\Filter\AllowedInFilter("t.foo"))
+            ->validate();
+        $pdoSqlite = new PdoSqlite3($mapping);
+        $pdoSqlite->generate();
+        $this->assertSame($expectedWhere, $pdoSqlite->getWhere());
+        $this->assertSame($expectedParameters, $pdoSqlite->getParameters());
+    }
+
+    public function dataProvider_testGenerateRemovesStrictDuplicatesInLikeSearch()
+    {
+        return [
+            ["(t.foo IN (:filter_0_0, :filter_0_1))", ['filter_0_0' => 42, 'filter_0_1' => "42"], '42,"42",42'],
+            ["(t.foo IS NULL)", [], 'null,null'],
+            ["(t.foo IN (:filter_0_0, :filter_0_1))", ['filter_0_0' => 1, 'filter_0_1' => "1"], 'true,"1",true'],
+        ];
+    }
+
+    /**
+     * @dataProvider dataProvider_testGenerateUsesSimpleAlternativeToInArraySearchWhenPossible
+     */
+    public function testGenerateUsesSimpleAlternativeToInArraySearchWhenPossible($expectedWhere, $expectedParameters, $innerArrayValue)
+    {
+        $queryParserFactory = new QueryParserFactory;
+        $queryParser = new QueryParser([
+            "filter" => [
+                "t.foo=[{$innerArrayValue}]"
+            ]
+        ]);
+        $queryParser->parse();
+        $mapping = new Mapping($queryParser);
+        $mapping
+            ->relate("t.foo", "t.foo")
+            ->allow(new Allowable\Filter\AllowedInFilter("t.foo"))
+            ->validate();
+        $pdoSqlite = new PdoSqlite3($mapping);
+        $pdoSqlite->generate();
+        $this->assertSame($expectedWhere, $pdoSqlite->getWhere());
+        $this->assertSame($expectedParameters, $pdoSqlite->getParameters());
+    }
+
+    public function dataProvider_testGenerateUsesSimpleAlternativeToInArraySearchWhenPossible()
+    {
+        return [
+            ["(t.foo = :filter_0_0)", ['filter_0_0' => 42], '42'],
+            ["(t.foo IS NULL OR t.foo = :filter_0_0)", ['filter_0_0' => 42], '42,null'],
+        ];
+    }
+
+    /**
      * @dataProvider   dataProvider_testGenerateForAllFilterTypesAndCases
      */
     public function testGenerateForAllFilterTypesAndCases(
@@ -154,7 +217,7 @@ class PdoSqlite3Test extends \PHPUnit_Framework_TestCase
 
             [Allowable\Filter\AllowedInFilter::class, "foo=[\"BAR\"]", "(t.foo = :filter_0_0)", ["filter_0_0" => "BAR"]],
             [Allowable\Filter\AllowedInFilter::class, "foo=[\"BAR\", \"baz\"]/i", "(LOWER(t.foo) IN (:filter_0_0, :filter_0_1))", ["filter_0_0" => "bar", "filter_0_1" => "baz"]],
-            [Allowable\Filter\AllowedInFilter::class, "foo=[null,true,false,1,3.14,\"bar\"]", "(t.foo IN (:filter_0_1, :filter_0_2, :filter_0_3, :filter_0_4, :filter_0_5) OR t.foo IS NULL)", ["filter_0_0" => null, "filter_0_1" => true, "filter_0_2" => false, "filter_0_3" => 1, "filter_0_4" => 3.14, "filter_0_5" => "bar"]],
+            [Allowable\Filter\AllowedInFilter::class, "foo=[null,true,false,1,3.14,\"bar\"]", "(t.foo IN (:filter_0_1, :filter_0_2, :filter_0_3, :filter_0_4, :filter_0_5) OR t.foo IS NULL)", ["filter_0_1" => 1, "filter_0_2" => 0, "filter_0_3" => 1, "filter_0_4" => 3.14, "filter_0_5" => "bar"]],
         ];
     }
 

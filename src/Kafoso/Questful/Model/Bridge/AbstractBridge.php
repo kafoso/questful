@@ -43,6 +43,23 @@ abstract class AbstractBridge implements AbstractBridgeInterface
         return $this->_mapping;
     }
 
+    protected function arrayUniqueStrict(array $array)
+    {
+        $uniqueArray = [];
+        foreach ($array as $k => $v) {
+            $isUnique = true;
+            foreach ($uniqueArray as $b) {
+                if ($b === $v) {
+                    $isUnique = false;
+                }
+            }
+            if ($isUnique) {
+                $uniqueArray[$k] = $v;
+            }
+        }
+        return $uniqueArray;
+    }
+
     protected function trimAndWrapInParentheses($str)
     {
         $str = trim($str);

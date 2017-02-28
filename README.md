@@ -289,6 +289,10 @@ Array filters are wrapped in square brackets, `[]` - and not round parentheses (
 
 The contents of the square brackets must evaluate to PHP syntax. Otherwise, a [`\Kafoso\Questful\Exception\BadRequestException`](src/Kafoso/Questful/Exception/BadRequestException.php) is thrown.
 
+Questful respects strict `null` comparisons, making `?filter[]=t.foo=[null,\"foo\",42]` become (in (PDO) MySQL syntax) `(t.foo IN (:filter_0_1, :filter_0_2) OR t.foo IS NULL)`. For certain bridges, boolean values are converted from `true` and `false` to `1` and `0`, respectively.
+
+Arrays are optimized before querying the storage unit, removing redundant values by strict comparison (`===`), making e.g. `[42,"42",42]` become `[42,"42"]`.
+
 ##### Syntax
 
 ```

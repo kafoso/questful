@@ -93,7 +93,7 @@ class PdoMySql5_5 extends AbstractPdoMySql
                         $inParameters = [];
                         $orParameters = [];
                         $value = $filter->getValue();
-                        $value = array_values($value);
+                        $value = $this->arrayUniqueStrict(array_values($value));
                         foreach ($value as $subIndex => $item) {
                             $parameterNameItem = "{$parameterName}_{$subIndex}";
                             if (is_null($item)) {
@@ -106,6 +106,9 @@ class PdoMySql5_5 extends AbstractPdoMySql
                                     $inParameters[$parameterNameItem] = "BINARY :{$parameterNameItem}";
                                 } else {
                                     $inParameters[$parameterNameItem] = ":{$parameterNameItem}";
+                                    if (is_bool($item)) {
+                                        $item = ($item ? 1 : 0);
+                                    }
                                 }
                             }
                             $this->parameters[$parameterNameItem] = $item;
@@ -136,6 +139,7 @@ class PdoMySql5_5 extends AbstractPdoMySql
                                     }
                                 } elseif (is_null($item)) {
                                     $orSql[] = "{$column} IS NULL";
+                                    unset($this->parameters[$parameterNameItem]);
                                 } elseif (is_int($item) || is_float($item)) {
                                     $orSql[] = "{$column} = {$partialSql}";
                                 }
