@@ -10,10 +10,10 @@ use Kafoso\Questful\Exception\UnexpectedValueException;
  */
 abstract class AbstractFilter implements AbstractFilterInterface
 {
-    private $expression;
-    private $key;
-    private $value;
-    private $operator = "=";
+    protected $expression;
+    protected $key;
+    protected $value;
+    protected $operator = "=";
 
     /**
      * @param $expression string
