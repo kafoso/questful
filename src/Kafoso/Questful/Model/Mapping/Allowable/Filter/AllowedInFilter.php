@@ -14,6 +14,7 @@ class AllowedInFilter extends AbstractAllowedFilter
 
     /**
      * @param $dataType string
+     * @param $constraints array (\Symfony\Component\Validator\Constraint[])
      * @throws Kafoso\Questful\Exception\InvalidArgumentException
      * @throws Kafoso\Questful\Exception\UnexpectedValueException
      * @return object $this
@@ -57,6 +58,40 @@ class AllowedInFilter extends AbstractAllowedFilter
             }
         }
         return $this;
+    }
+
+    /**
+     * @param $dataType string
+     * @throws Kafoso\Questful\Exception\InvalidArgumentException
+     * @throws Kafoso\Questful\Exception\UnexpectedValueException
+     * @return array (\Symfony\Component\Validator\Constraint[])
+     */
+    public function getSubConstraintsForDatatype($dataType)
+    {
+        if (false == is_string($dataType)) {
+            throw new InvalidArgumentException(sprintf(
+                "Expects argument '%s' to be a string. Found: %s",
+                '$dataType',
+                FormattingHelper::found($dataType)
+            ));
+        }
+        if (false == in_array($dataType, self::getAvailableConstaintDataTypes())) {
+            throw new UnexpectedValueException(sprintf(
+                "Expects argument '%s' to be one of [\"%s\"]. Found: %s",
+                '$dataType',
+                implode('","', self::getAvailableConstaintDataTypes()),
+                FormattingHelper::found($dataType)
+            ));
+        }
+        if (array_key_exists($dataType, $this->subContraints)) {
+            return $this->subContraints[$dataType];
+        }
+        return [];
+    }
+
+    public function hasSubConstraints()
+    {
+        return (count($this->subContraints) > 0);
     }
 
     /**

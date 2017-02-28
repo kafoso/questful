@@ -224,7 +224,7 @@ class MappingTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @expectedException Kafoso\Questful\Exception\BadRequestException
-     * @expectedExceptionMessage 'filter=foo=1': 1 validation(s) failed. First error: This value should be greater than 1.
+     * @expectedExceptionMessage 'filter=foo=1': 1 validation(s) failed. Error 1/1: This value should be greater than 1.
      */
     public function testValidateThrowsExceptionWhenAFilterConstraintIsNotMet()
     {
@@ -236,5 +236,100 @@ class MappingTest extends \PHPUnit_Framework_TestCase
             ->relate("foo", "t.foo")
             ->allow(new Allowable\Filter\AllowedIntegerFilter("foo", null, [new Assert\GreaterThan(1)]))
             ->validate();
+    }
+
+    /**
+     * @expectedException Kafoso\Questful\Exception\BadRequestException
+     * @expectedExceptionMessage  'filter=t.foo=[1,2,3]': 1 validation(s) failed. Error 1/1: This collection should contain 2 elements or less.
+     */
+    public function testValidateThrowsExceptionWhenAllowedInFilterContainsTooManyElements()
+    {
+        $queryParserFactory = new QueryParserFactory;
+        $queryParser = new QueryParser([
+            "filter" => [
+                "t.foo=[1,2,3]"
+            ]
+        ]);
+        $queryParser->parse();
+        $mapping = new Mapping($queryParser);
+        $mapping
+            ->relate("t.foo", "t.foo")
+            ->allow(new Allowable\Filter\AllowedInFilter("t.foo", null, [
+                new Assert\Count(['max' => 2]),
+            ]))
+            ->validate();
+    }
+
+    /**
+     * @dataProvider dataProvider_testValidateThrowsExceptionWhenAFiltersSubConstraintIsNotMet
+     */
+    public function testValidateThrowsExceptionWhenAFiltersSubConstraintIsNotMet($expectedExceptionMessage, $innerArrayValue, $dataType, array $constraints)
+    {
+        $queryParserFactory = new QueryParserFactory;
+        $queryParser = new QueryParser([
+            "filter" => [
+                "t.foo=[{$innerArrayValue}]"
+            ]
+        ]);
+        $queryParser->parse();
+        $mapping = new Mapping($queryParser);
+        $allowedFilter = new Allowable\Filter\AllowedInFilter("t.foo");
+        $allowedFilter->setSubConstraintsForDatatype($dataType, $constraints);
+        try {
+            $mapping
+                ->relate("t.foo", "t.foo")
+                ->allow($allowedFilter)
+                ->validate();
+        } catch (\Kafoso\Questful\Exception\BadRequestException $e) {
+            $this->assertSame($expectedExceptionMessage, $e->getMessage());
+            return;
+        }
+        $this->fail();
+    }
+
+    public function dataProvider_testValidateThrowsExceptionWhenAFiltersSubConstraintIsNotMet()
+    {
+        return [
+            [
+                "'filter=t.foo=[null]': 1 validation(s) failed for value at index 0. Error 1/1: This value should not be null.",
+                "null",
+                "null",
+                [
+                    new Assert\NotNull(),
+                ],
+            ],
+            [
+                "'filter=t.foo=[true]': 1 validation(s) failed for value at index 0. Error 1/1: This value should be false.",
+                "true",
+                "boolean",
+                [
+                    new Assert\IsFalse(),
+                ],
+            ],
+            [
+                "'filter=t.foo=[3.14]': 1 validation(s) failed for value at index 0. Error 1/1: This value should be greater than 4.",
+                "3.14",
+                "double",
+                [
+                    new Assert\GreaterThan(4),
+                ],
+            ],
+            [
+                "'filter=t.foo=[42]': 1 validation(s) failed for value at index 0. Error 1/1: This value should be less than 42.",
+                "42",
+                "integer",
+                [
+                    new Assert\LessThan(42),
+                ],
+            ],
+            [
+                "'filter=t.foo=[\"bar\"]': 1 validation(s) failed for value at index 0. Error 1/1: This value is too long. It should have 2 characters or less.",
+                '"bar"',
+                "string",
+                [
+                    new Assert\Length(['max' => 2]),
+                ],
+            ],
+        ];
     }
 }

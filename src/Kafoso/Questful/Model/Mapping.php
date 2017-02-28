@@ -7,9 +7,10 @@ use Kafoso\Questful\Exception\InvalidArgumentException;
 use Kafoso\Questful\Exception\RuntimeException;
 use Kafoso\Questful\Exception\UnexpectedValueException;
 use Kafoso\Questful\Model\Mapping\AllowableInterface;
-use Kafoso\Questful\Model\Mapping\Allowable\Filter\AbstractAllowedFilter;
 use Kafoso\Questful\Model\Mapping\Allowable\AllowedFilterExpression;
 use Kafoso\Questful\Model\Mapping\Allowable\AllowedSort;
+use Kafoso\Questful\Model\Mapping\Allowable\Filter\AbstractAllowedFilter;
+use Kafoso\Questful\Model\Mapping\Allowable\Filter\AllowedInFilter;
 use Symfony\Component\Validator\Validation;
 
 class Mapping implements MappingInterface
@@ -117,11 +118,52 @@ class Mapping implements MappingInterface
                                             break;
                                         }
                                         throw new BadRequestException(sprintf(
-                                            "'filter=%s': %d validation(s) failed. First error: %s",
+                                            "'filter=%s': %d validation(s) failed. Error 1/%d: %s",
                                             addcslashes($filter->getExpression(), "'"),
                                             count($violations),
+                                            $violations->count(),
                                             $firstErrorMessage
                                         ));
+                                    }
+                                }
+                                if ($allowedFilter instanceof AllowedInFilter) {
+                                    if ($allowedFilter->hasSubConstraints()) {
+                                        $array = $filter->getValue();
+                                        foreach ($array as $index => $v) {
+                                            $subContraints = [];
+                                            if (is_null($v)) {
+                                                $subContraints = $allowedFilter->getSubConstraintsForDatatype("null");
+                                            } elseif (is_bool($v)) {
+                                                $subContraints = $allowedFilter->getSubConstraintsForDatatype("boolean");
+                                            } elseif (is_float($v)) {
+                                                $subContraints = $allowedFilter->getSubConstraintsForDatatype("double");
+                                            } elseif (is_int($v)) {
+                                                $subContraints = $allowedFilter->getSubConstraintsForDatatype("integer");
+                                            } elseif (is_string($v)) {
+                                                $subContraints = $allowedFilter->getSubConstraintsForDatatype("string");
+                                            }
+                                            if ($subContraints) {
+                                                $violations = $validator->validateValue(
+                                                    $v,
+                                                    $subContraints
+                                                );
+                                                if ($violations->count() > 0) {
+                                                    $firstErrorMessage = null;
+                                                    foreach ($violations as $violation) {
+                                                        $firstErrorMessage = $violation->getMessage();
+                                                        break;
+                                                    }
+                                                    throw new BadRequestException(sprintf(
+                                                        "'filter=%s': %d validation(s) failed for value at index %d. Error 1/%d: %s",
+                                                        addcslashes($filter->getExpression(), "'"),
+                                                        count($violations),
+                                                        $index,
+                                                        $violations->count(),
+                                                        $firstErrorMessage
+                                                    ));
+                                                }
+                                            }
+                                        }
                                     }
                                 }
                                 unset($filters[$i]);
