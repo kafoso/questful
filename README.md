@@ -15,6 +15,10 @@ Questful aims to close part of this gap by providing strict, manageable, and sec
 
 The primary goal of Questful is to allow developers to quickly manage and implement filtering and sorting options in web applications, so that they may focus their energy and skill on making great applications, instead of repeatedly implementing trivial procedures.
 
+## Disclaimer
+
+This has started as a hobby project and is still in its infancy. Use Questful your own risk and please see the [LICENSE](LICENSE) file.
+
 ## A quick example
 
 In Questful, finding all users called "Homer" and then sorting (alphanumerically) by their names is as easy as:
@@ -65,6 +69,16 @@ try {
     throw $e;
 }
 ```
+
+# Requirements
+
+- PHP 5.6 and above.
+
+## Recommended
+
+- MySQL 5.5 and above.
+- Doctrine 2.1 and above.
+- Sqlite3.
 
 <a name="filtering"></a>
 # Filtering
