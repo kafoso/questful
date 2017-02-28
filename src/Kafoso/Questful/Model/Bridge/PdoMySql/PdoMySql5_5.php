@@ -90,23 +90,64 @@ class PdoMySql5_5 extends AbstractPdoMySql
                         }
                         $this->parameters[$parameterName] = $value;
                     } elseif ($filter instanceof InFilter) {
-                        if (false == $filter->isCaseSensitive()) {
-                            $sql .= "LOWER({$column}) IN (";
-                        } else {
-                            $sql .= "{$column} IN (";
-                        }
-                        $value = array_values($filter->getValue());
-                        $sqlPlaceholders = [];
-                        foreach ($value as $index => $item) {
-                            $parameterNameItem = "{$parameterName}_{$index}";
-                            if (is_string($item) && false == $filter->isCaseSensitive()) {
-                                $item = mb_strtolower($item, $this->getEncoding());
+                        $inParameters = [];
+                        $orParameters = [];
+                        $value = $filter->getValue();
+                        $value = array_values($value);
+                        foreach ($value as $subIndex => $item) {
+                            $parameterNameItem = "{$parameterName}_{$subIndex}";
+                            if (is_null($item)) {
+                                $orParameters[$parameterNameItem] = ":{$parameterNameItem}";
+                            } else {
+                                if (is_string($item)) {
+                                    if (false == $filter->isCaseSensitive()) {
+                                        $item = mb_strtolower($item, $this->getEncoding());
+                                    }
+                                    $inParameters[$parameterNameItem] = "BINARY :{$parameterNameItem}";
+                                } else {
+                                    $inParameters[$parameterNameItem] = ":{$parameterNameItem}";
+                                }
                             }
-                            $sqlPlaceholders[] = ":{$parameterNameItem}";
                             $this->parameters[$parameterNameItem] = $item;
                         }
-                        $sql .= implode(", ", $sqlPlaceholders);
-                        $sql .= ")";
+                        if ($inParameters) {
+                            if (1 == count($inParameters)) {
+                                reset($inParameters);
+                                $orParameters[key($inParameters)] = current($inParameters);
+                                $inParameters = [];
+                            } else {
+                                $inParametersStr = implode(", ", $inParameters);
+                                if (false == $filter->isCaseSensitive()) {
+                                    $sql .= "LOWER({$column}) IN ($inParametersStr)";
+                                } else {
+                                    $sql .= "{$column} IN ($inParametersStr)";
+                                }
+                            }
+                        }
+                        if ($orParameters) {
+                            $orSql = [];
+                            foreach ($orParameters as $parameterNameItem => $partialSql) {
+                                $item = $this->parameters[$parameterNameItem];
+                                if (is_string($item)) {
+                                    if (false == $filter->isCaseSensitive()) {
+                                        $orSql[] = "LOWER({$column}) = {$partialSql}";
+                                    } else {
+                                        $orSql[] = "{$column} = {$partialSql}";
+                                    }
+                                } elseif (is_null($item)) {
+                                    $orSql[] = "{$column} IS NULL";
+                                } elseif (is_int($item) || is_float($item)) {
+                                    $orSql[] = "{$column} = {$partialSql}";
+                                }
+                            }
+                            if ($orSql) {
+                                if ($inParameters) {
+                                    $sql = "({$sql} OR " . implode(" OR ", $orSql) . ")";
+                                } else {
+                                    $sql = "(" . implode(" OR ", $orSql) . ")";
+                                }
+                            }
+                        }
                     } else {
                         throw new RuntimeException(sprintf(
                             "Uncovered case for filter with type '%s' and expression: %s",
