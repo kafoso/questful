@@ -25,8 +25,7 @@ Sample JSON metadata:
     "filters": [
         {
             "expression": "id>1",
-            "extra": [
-            ],
+            "extra": [],
             "key": "id",
             "operator": ">",
             "type": "integer",
