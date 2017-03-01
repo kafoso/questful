@@ -218,6 +218,9 @@ class PdoSqlite3Test extends \PHPUnit_Framework_TestCase
             [Allowable\Filter\AllowedInFilter::class, "foo=[\"BAR\"]", "(t.foo = :filter_0_0)", ["filter_0_0" => "BAR"]],
             [Allowable\Filter\AllowedInFilter::class, "foo=[\"BAR\", \"baz\"]/i", "(LOWER(t.foo) IN (:filter_0_0, :filter_0_1))", ["filter_0_0" => "bar", "filter_0_1" => "baz"]],
             [Allowable\Filter\AllowedInFilter::class, "foo=[null,true,false,1,3.14,\"bar\"]", "(t.foo IN (:filter_0_1, :filter_0_2, :filter_0_3, :filter_0_4, :filter_0_5) OR t.foo IS NULL)", ["filter_0_1" => 1, "filter_0_2" => 0, "filter_0_3" => 1, "filter_0_4" => 3.14, "filter_0_5" => "bar"]],
+            [Allowable\Filter\AllowedInFilter::class, "foo!=[true]", "(t.foo != :filter_0_0)", ["filter_0_0" => 1]],
+            [Allowable\Filter\AllowedInFilter::class, "foo!=[null,true]", "(t.foo IS NOT NULL AND t.foo != :filter_0_1)", ["filter_0_1" => 1]],
+            [Allowable\Filter\AllowedInFilter::class, "foo!=[null,true,42]", "(t.foo NOT IN (:filter_0_1, :filter_0_2) AND t.foo IS NOT NULL)", ["filter_0_1" => 1, "filter_0_2" => 42]],
         ];
     }
 

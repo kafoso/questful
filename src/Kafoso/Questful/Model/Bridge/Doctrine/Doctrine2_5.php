@@ -2,6 +2,7 @@
 namespace Kafoso\Questful\Model\Bridge\Doctrine;
 
 use Doctrine\ORM\QueryBuilder;
+use Kafoso\Questful\Exception\FormattingHelper;
 use Kafoso\Questful\Exception\RuntimeException;
 use Kafoso\Questful\Model\QueryParser\Filter\BooleanFilter;
 use Kafoso\Questful\Model\QueryParser\Filter\FloatFilter;
@@ -96,14 +97,14 @@ class Doctrine2_5 extends AbstractDoctrine
                         $this->parameters[$parameterName] = $value;
                     } elseif ($filter instanceof InFilter) {
                         $inParameters = [];
-                        $orParameters = [];
+                        $logicalOperatorParameters = [];
                         $value = $filter->getValue();
                         $value = array_values($value);
                         $value = $this->arrayUniqueStrict(array_values($value));
                         foreach ($value as $subIndex => $item) {
                             $parameterNameItem = "{$parameterName}_{$subIndex}";
                             if (is_null($item)) {
-                                $orParameters[$parameterNameItem] = ":{$parameterNameItem}";
+                                $logicalOperatorParameters[$parameterNameItem] = ":{$parameterNameItem}";
                             } else {
                                 if (is_string($item)) {
                                     if (false == $filter->isCaseSensitive()) {
@@ -119,39 +120,49 @@ class Doctrine2_5 extends AbstractDoctrine
                         if ($inParameters) {
                             if (1 == count($inParameters)) {
                                 reset($inParameters);
-                                $orParameters[key($inParameters)] = current($inParameters);
+                                $logicalOperatorParameters[key($inParameters)] = current($inParameters);
                                 $inParameters = [];
                             } else {
                                 $inParametersStr = implode(", ", $inParameters);
                                 if (false == $filter->isCaseSensitive()) {
-                                    $sql .= "LOWER({$column}) IN ($inParametersStr)";
+                                    $sql .= "LOWER({$column}) {$not}IN ($inParametersStr)";
                                 } else {
-                                    $sql .= "{$column} IN ($inParametersStr)";
+                                    $sql .= "{$column} {$not}IN ($inParametersStr)";
                                 }
                             }
                         }
-                        if ($orParameters) {
-                            $orSql = [];
-                            foreach ($orParameters as $parameterNameItem => $partialSql) {
+                        if ($logicalOperatorParameters) {
+                            $sqlSegments = [];
+                            foreach ($logicalOperatorParameters as $parameterNameItem => $partialSql) {
                                 $item = $this->parameters[$parameterNameItem];
                                 if (is_string($item)) {
                                     if (false == $filter->isCaseSensitive()) {
-                                        $orSql[] = "LOWER({$column}) = {$partialSql}";
+                                        $sqlSegments[] = "LOWER({$column}) {$operator} {$partialSql}";
                                     } else {
-                                        $orSql[] = "{$column} = {$partialSql}";
+                                        $sqlSegments[] = "{$column} {$operator} {$partialSql}";
                                     }
                                 } elseif (is_null($item)) {
-                                    $orSql[] = "{$column} IS NULL";
+                                    $sqlSegments[] = "{$column} IS {$not}NULL";
                                     unset($this->parameters[$parameterNameItem]);
-                                } elseif (is_int($item) || is_float($item)) {
-                                    $orSql[] = "{$column} = {$partialSql}";
+                                } elseif (is_int($item) || is_float($item) || is_bool($item)) {
+                                    $sqlSegments[] = "{$column} {$operator} {$partialSql}";
+                                } else {
+                                    throw new RuntimeException(sprintf(
+                                        "Uncovered case for item (parameter name: %s). Unexpected data type. Found: %s",
+                                        $parameterNameItem,
+                                        FormattingHelper::found($item)
+                                    ));
                                 }
                             }
-                            if ($orSql) {
+                            if ($sqlSegments) {
+                                $logicalOperator = "OR";
+                                if ("!=" == $operator) {
+                                    $logicalOperator = "AND";
+                                }
                                 if ($inParameters) {
-                                    $sql = "({$sql} OR " . implode(" OR ", $orSql) . ")";
+                                    $sql = "({$sql} {$logicalOperator} " . implode(" {$logicalOperator} ", $sqlSegments) . ")";
                                 } else {
-                                    $sql = "(" . implode(" OR ", $orSql) . ")";
+                                    $sql = "(" . implode(" {$logicalOperator} ", $sqlSegments) . ")";
                                 }
                             }
                         }

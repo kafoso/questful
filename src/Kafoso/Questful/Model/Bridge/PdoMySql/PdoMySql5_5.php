@@ -1,6 +1,7 @@
 <?php
 namespace Kafoso\Questful\Model\Bridge\PdoMySql;
 
+use Kafoso\Questful\Exception\FormattingHelper;
 use Kafoso\Questful\Exception\RuntimeException;
 use Kafoso\Questful\Model\QueryParser\Filter\BooleanFilter;
 use Kafoso\Questful\Model\QueryParser\Filter\FloatFilter;
@@ -90,22 +91,22 @@ class PdoMySql5_5 extends AbstractPdoMySql
                         }
                         $this->parameters[$parameterName] = $value;
                     } elseif ($filter instanceof InFilter) {
-                        $inParameters = [];
-                        $orParameters = [];
+                        $inParameterPlaceholders = [];
+                        $logicalOperatorParameters = []; // AND/OR
                         $value = $filter->getValue();
                         $value = $this->arrayUniqueStrict(array_values($value));
                         foreach ($value as $subIndex => $item) {
                             $parameterNameItem = "{$parameterName}_{$subIndex}";
                             if (is_null($item)) {
-                                $orParameters[$parameterNameItem] = ":{$parameterNameItem}";
+                                $logicalOperatorParameters[$parameterNameItem] = ":{$parameterNameItem}";
                             } else {
                                 if (is_string($item)) {
                                     if (false == $filter->isCaseSensitive()) {
                                         $item = mb_strtolower($item, $this->getEncoding());
                                     }
-                                    $inParameters[$parameterNameItem] = "BINARY :{$parameterNameItem}";
+                                    $inParameterPlaceholders[$parameterNameItem] = "BINARY :{$parameterNameItem}";
                                 } else {
-                                    $inParameters[$parameterNameItem] = ":{$parameterNameItem}";
+                                    $inParameterPlaceholders[$parameterNameItem] = ":{$parameterNameItem}";
                                     if (is_bool($item)) {
                                         $item = ($item ? 1 : 0);
                                     }
@@ -113,42 +114,52 @@ class PdoMySql5_5 extends AbstractPdoMySql
                             }
                             $this->parameters[$parameterNameItem] = $item;
                         }
-                        if ($inParameters) {
-                            if (1 == count($inParameters)) {
-                                reset($inParameters);
-                                $orParameters[key($inParameters)] = current($inParameters);
-                                $inParameters = [];
+                        if ($inParameterPlaceholders) {
+                            if (1 == count($inParameterPlaceholders)) {
+                                reset($inParameterPlaceholders);
+                                $logicalOperatorParameters[key($inParameterPlaceholders)] = current($inParameterPlaceholders);
+                                $inParameterPlaceholders = [];
                             } else {
-                                $inParametersStr = implode(", ", $inParameters);
+                                $inParameterPlaceholdersStr = implode(", ", $inParameterPlaceholders);
                                 if (false == $filter->isCaseSensitive()) {
-                                    $sql .= "LOWER({$column}) IN ($inParametersStr)";
+                                    $sql .= "LOWER({$column}) {$not}IN ($inParameterPlaceholdersStr)";
                                 } else {
-                                    $sql .= "{$column} IN ($inParametersStr)";
+                                    $sql .= "{$column} {$not}IN ($inParameterPlaceholdersStr)";
                                 }
                             }
                         }
-                        if ($orParameters) {
-                            $orSql = [];
-                            foreach ($orParameters as $parameterNameItem => $partialSql) {
+                        if ($logicalOperatorParameters) {
+                            $sqlSegments = [];
+                            foreach ($logicalOperatorParameters as $parameterNameItem => $partialSql) {
                                 $item = $this->parameters[$parameterNameItem];
                                 if (is_string($item)) {
                                     if (false == $filter->isCaseSensitive()) {
-                                        $orSql[] = "LOWER({$column}) = {$partialSql}";
+                                        $sqlSegments[] = "LOWER({$column}) {$operator} {$partialSql}";
                                     } else {
-                                        $orSql[] = "{$column} = {$partialSql}";
+                                        $sqlSegments[] = "{$column} {$operator} {$partialSql}";
                                     }
                                 } elseif (is_null($item)) {
-                                    $orSql[] = "{$column} IS NULL";
+                                    $sqlSegments[] = "{$column} IS {$not}NULL";
                                     unset($this->parameters[$parameterNameItem]);
                                 } elseif (is_int($item) || is_float($item)) {
-                                    $orSql[] = "{$column} = {$partialSql}";
+                                    $sqlSegments[] = "{$column} {$operator} {$partialSql}";
+                                } else {
+                                    throw new RuntimeException(sprintf(
+                                        "Uncovered case for item (parameter name: %s). Unexpected data type. Found: %s",
+                                        $parameterNameItem,
+                                        FormattingHelper::found($item)
+                                    ));
                                 }
                             }
-                            if ($orSql) {
-                                if ($inParameters) {
-                                    $sql = "({$sql} OR " . implode(" OR ", $orSql) . ")";
+                            if ($sqlSegments) {
+                                $logicalOperator = "OR";
+                                if ("!=" == $operator) {
+                                    $logicalOperator = "AND";
+                                }
+                                if ($inParameterPlaceholders) {
+                                    $sql = "({$sql} {$logicalOperator} " . implode(" {$logicalOperator} ", $sqlSegments) . ")";
                                 } else {
-                                    $sql = "(" . implode(" OR ", $orSql) . ")";
+                                    $sql = "(" . implode(" {$logicalOperator} ", $sqlSegments) . ")";
                                 }
                             }
                         }

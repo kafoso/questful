@@ -216,6 +216,9 @@ class Doctrine2_5Test extends \PHPUnit_Framework_TestCase
             [Allowable\Filter\AllowedInFilter::class, "foo=[\"BAR\"]", "(t.foo = BINARY(:filter_0_0))", ["filter_0_0" => "BAR"]],
             [Allowable\Filter\AllowedInFilter::class, "foo=[\"BAR\", \"baz\"]/i", "(LOWER(t.foo) IN (BINARY(:filter_0_0), BINARY(:filter_0_1)))", ["filter_0_0" => "bar", "filter_0_1" => "baz"]],
             [Allowable\Filter\AllowedInFilter::class, "foo=[null,true,false,1,3.14,\"bar\"]", "(t.foo IN (:filter_0_1, :filter_0_2, :filter_0_3, :filter_0_4, BINARY(:filter_0_5)) OR t.foo IS NULL)", ["filter_0_1" => true, "filter_0_2" => false, "filter_0_3" => 1, "filter_0_4" => 3.14, "filter_0_5" => "bar"]],
+            [Allowable\Filter\AllowedInFilter::class, "foo!=[true]", "(t.foo != :filter_0_0)", ["filter_0_0" => true]],
+            [Allowable\Filter\AllowedInFilter::class, "foo!=[null,true]", "(t.foo IS NOT NULL AND t.foo != :filter_0_1)", ["filter_0_1" => true]],
+            [Allowable\Filter\AllowedInFilter::class, "foo!=[null,true,42]", "(t.foo NOT IN (:filter_0_1, :filter_0_2) AND t.foo IS NOT NULL)", ["filter_0_1" => true, "filter_0_2" => 42]],
         ];
     }
 
