@@ -1,10 +1,13 @@
 <?php
 namespace Kafoso\Questful\Model\Mapping\Allowable;
 
+use Kafoso\Questful\Exception\BadRequestException;
 use Kafoso\Questful\Exception\FormattingHelper;
 use Kafoso\Questful\Exception\InvalidArgumentException;
+use Kafoso\Questful\Exception\ValidationException;
 use Kafoso\Questful\Model\QueryParser\FilterExpression;
 use Kafoso\Questful\Model\Mapping\AllowableInterface;
+use Kafoso\Questful\Model\MappingInterface;
 
 class AllowedFilterExpression implements AllowableInterface
 {
@@ -29,7 +32,18 @@ class AllowedFilterExpression implements AllowableInterface
             $this->expression = self::ALLOW_ALL;
         } else {
             $this->expression = $expression;
-            $this->filterExpression = new FilterExpression($expression);
+            try {
+                $this->filterExpression = new FilterExpression($expression);
+            } catch (BadRequestException $e) {
+                /**
+                 * Throws ValidationException instead because this is a server-side programming mistake, e.g. an allowed
+                 * filter expression is malformed. It is not a client input mistake.
+                 */
+                throw new ValidationException(sprintf(
+                    "Expression '%s' is invalid",
+                    $this->expression
+                ), MappingInterface::EXCEPTION_CODE, $e);
+            }
         }
     }
 

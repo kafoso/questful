@@ -20,8 +20,8 @@ class AllowedFilterExpressionTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException Kafoso\Questful\Exception\BadRequestException
-     * @expectedExceptionMessage Malformed expression. Unexpected token 'f' at position 0 in expression: foo
+     * @expectedException Kafoso\Questful\Exception\ValidationException
+     * @expectedExceptionMessage Expression 'foo' is invalid
      */
     public function testConstructorThrowsExceptionWhenExpressionArgumentIsMalformed()
     {
