@@ -695,6 +695,7 @@ An example using array (`IN`) to look up items in an SQLite3 database. Requires 
 
 - Expand number of ready-for-use bridges.
 - Allow customization of HTTP parameter keys. I.e. make them changeable and not the static values of `?filter`, `?filterExpression`, and `?sort`.
+- Use unique exception codes throughout the application, allowing unique actions based on the exception code, e.g. translating (to a different language) and relaying the exception message.
 - Allow common `AbstractAllowedFilter` configurations, where operators and validatores are stored and gets applied automatically. Useful if one wants to always restrict string length to - say - maximum 512 characters.
 - (Re)introduce support for regular expressions, e.g. `?filter[]=foo=/^foo\d+$/i`. This comes with a myriad of security concerns, plus programmatic challenges such as differences between [POSIX 1003.2](http://www.regextester.com/eregsyntax.html) - as [used by MySQL](https://dev.mysql.com/doc/refman/5.7/en/regexp.html) - and [PCRE](http://php.net/manual/en/intro.pcre.php).
 
